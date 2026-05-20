@@ -29,19 +29,27 @@ Este guia orienta sobre como rodar o sistema localmente (usando Docker Desktop) 
 
 ---
 
-## 2. Implantação em Produção (VPS Linux - Debian/Ubuntu)
+## 2. Implantação em Produção (Multi-Instância - VPS Linux Debian/Ubuntu)
 
-Para simplificar a instalação em produção, criamos o script automatizado **`setup_vps.sh`** na raiz do projeto. Ele gerencia a instalação do Docker, configura as variáveis de ambiente, importa o banco de dados e cria o seu usuário administrador automaticamente.
+Para simplificar a instalação e permitir a execução de **múltiplas instâncias independentes** na mesma VPS, criamos o script automatizado **`setup_vps.sh`** na raiz do projeto. 
+
+O script faz o seguinte:
+* Cria automaticamente o diretório de instalação isolado da instância em `/var/www/doutos_instances/<nome_da_instancia>`.
+* Copia os arquivos do template para a pasta da instância.
+* Varre as portas da VPS para sugerir **portas livres** (Web, MySQL e phpMyAdmin) para evitar conflitos com outras instâncias.
+* Nomeia os containers no Docker de forma dinâmica baseados no nome da instância (ex: `cliente1_mysql`, `cliente1_php-fpm`).
+* Configura as credenciais de banco, variáveis `.env` e cria a conta admin da instância.
+* Permite opcionalmente gerar SSL (HTTPS) automático.
 
 ### Passo 1: Configuração do Servidor DNS
-Antes de iniciar, aponte o seu domínio (ou subdomínio) para o IP público da sua VPS:
-* Criar um registro **A** apontando `doutos.seudominio.com` para o `IP_DA_VPS`.
+Aponte o domínio ou subdomínio específico da instância para o IP da sua VPS:
+* Criar registro **A** apontando `cliente1.seudominio.com.br` para o `IP_DA_VPS`.
 
-### Passo 2: Execução do Script Automatizado (Recomendado)
+### Passo 2: Execução do Script Automatizado
 Acesse a sua VPS via SSH e execute os seguintes comandos:
 
 ```bash
-# 1. Navegue até o diretório onde o código foi clonado
+# 1. Navegue até o diretório onde você clonou o repositório base (ex: /var/www/doutos)
 cd /var/www/doutos
 
 # 2. Dê permissão de execução ao script
@@ -51,12 +59,7 @@ chmod +x setup_vps.sh
 sudo ./setup_vps.sh
 ```
 
-**O que o script fará:**
-* Validará se o Docker e o Docker Compose estão instalados (e os instalará se necessário).
-* Solicitará interativamente os dados do seu domínio, portas da aplicação e credenciais do banco.
-* Criará de forma automática as senhas do MySQL e o usuário administrador.
-* Importará o arquivo `banco.sql` estruturando as tabelas.
-* Oferecerá a opção de instalar e configurar o Certbot para SSL (HTTPS) de graça.
+Durante a execução, o instalador perguntará o identificador único da instância (ex: `cliente1`) e configurará tudo a partir de lá. Você pode rodar o script novamente a qualquer momento com um novo nome para criar uma nova instância independente.
 
 ---
 
