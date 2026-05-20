@@ -277,6 +277,10 @@ sed -i "s|enter_api_enabled|true|g" application/.env
 sed -i "s|enter_jwt_key|$JWT_KEY|g" application/.env
 sed -i "s|enter_token_expire_time|86400|g" application/.env
 
+# Ajustar permissões para que o php-fpm (www-data com UID 1000) possa atualizar as configurações
+chown 1000:1000 application/.env 2>/dev/null || true
+chmod 664 application/.env
+
 echo -e "${GREEN}Configurações de ambiente geradas com sucesso!${NC}"
 
 # 8. Subir os containers do Docker para esta instância
