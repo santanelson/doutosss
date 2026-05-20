@@ -9,8 +9,8 @@ services:
       - "./etc/nginx/ssl.template.conf:/etc/nginx/conf.d/ssl.template"
       - "/etc/letsencrypt:/etc/letsencrypt:ro"
     ports:
-      - "${NGINX_PORT}:${NGINX_PORT}"
-      - "${NGINX_SSL_PORT}:443"
+      - "${NGINX_PORT_BIND}"
+      - "${NGINX_SSL_PORT_BIND}"
     env_file:
       - ".env"
     command: /bin/sh -c "envsubst '$$NGINX_HOST $$NGINX_PORT' < /etc/nginx/conf.d/${NGINX_TEMPLATE}.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"

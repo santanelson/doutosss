@@ -194,19 +194,55 @@ while [ ${#ADMIN_PASS} -lt 6 ]; do
     read -p "Senha do Administrador: " ADMIN_PASS
 done
 
-# Alerta sobre SSL em instalações multi-instâncias
-echo -e "\n${YELLOW}Nota sobre SSL (HTTPS): Se você estiver rodando múltiplas instâncias com portas diferentes"
-echo -e "(ex: 8000, 8001) atrás de um Reverse Proxy (como Nginx Proxy Manager), selecione 'n' aqui e configure"
-echo -e "o SSL diretamente no seu Reverse Proxy principal.${NC}"
-read -p "Deseja configurar SSL (HTTPS) com Let's Encrypt de forma automática? (s/n) [Padrão: n]: " SETUP_SSL
-SETUP_SSL=${SETUP_SSL:-n}
+# 6. Escolha do método de Exposição e SSL
+echo -e "\n${BLUE}Como deseja configurar a exposição web e SSL (HTTPS) desta instância?${NC}"
+echo -e "1) Usar Proxy Reverso Nginx na VPS com SSL Let's Encrypt (Recomendado para multi-instâncias)"
+echo -e "2) Usar Proxy Reverso Nginx na VPS SEM SSL (HTTP normal)"
+echo -e "3) Exposição direta pelo Docker com SSL Let's Encrypt (Standalone - requer liberar portas 80/443 no Docker)"
+echo -e "4) Exposição direta pelo Docker SEM SSL (HTTP normal)"
+read -p "Selecione a opção desejada [Padrão: 1]: " EXPOSE_OPTION
+EXPOSE_OPTION=${EXPOSE_OPTION:-1}
+
+USE_HOST_PROXY="n"
+SETUP_SSL="n"
+
+if [ "$EXPOSE_OPTION" == "1" ]; then
+    USE_HOST_PROXY="s"
+    SETUP_SSL="s"
+elif [ "$EXPOSE_OPTION" == "2" ]; then
+    USE_HOST_PROXY="s"
+    SETUP_SSL="n"
+elif [ "$EXPOSE_OPTION" == "3" ]; then
+    USE_HOST_PROXY="n"
+    SETUP_SSL="s"
+else
+    USE_HOST_PROXY="n"
+    SETUP_SSL="n"
+fi
+
+# Configurar as variáveis de portas de acordo com a opção de exposição
+if [ "$USE_HOST_PROXY" == "s" ]; then
+    NGINX_PORT_BIND="127.0.0.1:$WEB_PORT:$WEB_PORT"
+    NGINX_SSL_PORT_BIND="127.0.0.1:9443:443"
+    NGINX_TEMPLATE="default"
+else
+    if [ "$SETUP_SSL" == "s" ]; then
+        NGINX_PORT_BIND="$WEB_PORT:80"
+        NGINX_SSL_PORT_BIND="443:443"
+        NGINX_TEMPLATE="ssl"
+    else
+        NGINX_PORT_BIND="$WEB_PORT:$WEB_PORT"
+        NGINX_SSL_PORT_BIND="127.0.0.1:9443:443"
+        NGINX_TEMPLATE="default"
+    fi
+fi
 
 # Mostrar resumo das configurações
 echo -e "\n${BLUE}======================================================================${NC}"
 echo -e "${YELLOW}RESUMO DA CONFIGURAÇÃO DA INSTÂNCIA [ $INSTANCE_NAME ]:${NC}"
 echo -e "Diretório: $TARGET_DIR"
 echo -e "Domínio: $DOMAIN"
-echo -e "Porta Nginx: $WEB_PORT"
+echo -e "Porta Nginx: $WEB_PORT (Tipo: $([ "$USE_HOST_PROXY" == "s" ] && echo "Local escutando em 127.0.0.1 (Proxy Reverso)" || echo "Exposta Pública no Host"))"
 echo -e "phpMyAdmin: $([ "$ENABLE_PMA" == "s" ] && echo "Habilitado na porta $PMA_PORT" || echo "Desabilitado")"
 echo -e "MySQL (Porta Host): $MYSQL_PORT"
 echo -e "Banco de Dados: $DB_NAME"
@@ -214,7 +250,8 @@ echo -e "Usuário MySQL: $DB_USER"
 echo -e "Senha MySQL: $DB_PASS"
 echo -e "E-mail Admin: $ADMIN_EMAIL"
 echo -e "Senha Admin: $ADMIN_PASS"
-echo -e "Configurar SSL: $SETUP_SSL"
+echo -e "Proxy Reverso na VPS: $([ "$USE_HOST_PROXY" == "s" ] && echo "Sim" || echo "Não")"
+echo -e "Configurar SSL: $([ "$SETUP_SSL" == "s" ] && echo "Sim" || echo "Não")"
 echo -e "======================================================================"
 read -p "Confirmar e iniciar a instalação da instância? (s/n) [Padrão: s]: " CONFIRM
 CONFIRM=${CONFIRM:-s}
@@ -232,8 +269,9 @@ cat <<EOF > docker/.env
 COMPOSE_PROJECT_NAME=$INSTANCE_NAME
 NGINX_HOST=$DOMAIN
 NGINX_PORT=$WEB_PORT
-NGINX_TEMPLATE=default
-NGINX_SSL_PORT=127.0.0.1:9443
+NGINX_TEMPLATE=$NGINX_TEMPLATE
+NGINX_PORT_BIND=$NGINX_PORT_BIND
+NGINX_SSL_PORT_BIND=$NGINX_SSL_PORT_BIND
 PHP_MY_ADMIN_PORT=$PMA_PORT
 
 MYSQL_DOUTOS_VERSION=8.4
@@ -254,11 +292,11 @@ fi
 ENCRYPTION_KEY=$(openssl rand -hex 16)
 JWT_KEY=$(openssl rand -base64 32)
 BASE_URL="http://$DOMAIN"
-if [ "$WEB_PORT" -ne 80 ] && [ "$WEB_PORT" -ne 443 ]; then
+if [ "$WEB_PORT" -ne 80 ] && [ "$WEB_PORT" -ne 443 ] && [ "$USE_HOST_PROXY" != "s" ]; then
     BASE_URL="http://$DOMAIN:$WEB_PORT"
 fi
 
-if [ "$SETUP_SSL" == "s" ] || [ "$SETUP_SSL" == "S" ]; then
+if [ "$SETUP_SSL" == "s" ]; then
     BASE_URL="https://$DOMAIN"
 fi
 
@@ -311,42 +349,120 @@ ADMIN_HASH=$(docker exec ${INSTANCE_NAME}_php-fpm php -r "echo password_hash('$A
 docker exec -i ${INSTANCE_NAME}_mysql mysql -uroot -p"$ROOT_PASS" -h"127.0.0.1" "$DB_NAME" -e "UPDATE usuarios SET email='$ADMIN_EMAIL', nome='$ADMIN_NAME', senha='$ADMIN_HASH', dataCadastro=NOW() WHERE idUsuarios=1;"
 echo -e "${GREEN}Administrador configurado!${NC}"
 
-# 11. Configurar SSL automaticamente se selecionado
-if [ "$SETUP_SSL" == "s" ] || [ "$SETUP_SSL" == "S" ]; then
-    echo -e "\n${YELLOW}Iniciando configuração de SSL (HTTPS) com Let's Encrypt...${NC}"
+# 11. Configuração do Proxy Reverso na VPS e/ou SSL
+if [ "$USE_HOST_PROXY" == "s" ]; then
+    echo -e "\n${YELLOW}Configurando Proxy Reverso Nginx na VPS...${NC}"
+    
+    # 1. Instalar Nginx na VPS se não estiver instalado
+    if ! command -v nginx &>/dev/null; then
+        echo -e "${YELLOW}Nginx não encontrado na VPS. Instalando...${NC}"
+        apt update -qq
+        apt install -y nginx -qq
+        systemctl enable nginx --now
+    fi
+    
+    # 2. Criar configuração do site no Nginx da VPS
+    NGINX_CONF="/etc/nginx/sites-available/$INSTANCE_NAME"
+    cat <<EOF > "$NGINX_CONF"
+server {
+    listen 80;
+    server_name $DOMAIN;
+
+    location / {
+        proxy_pass http://127.0.0.1:$WEB_PORT;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        client_max_body_size 20M;
+    }
+}
+EOF
+
+    # 3. Ativar o site no Nginx
+    ln -sf "$NGINX_CONF" "/etc/nginx/sites-enabled/"
+    
+    # Remover o site default do Nginx se ele existir e for conflitar
+    if [ -f "/etc/nginx/sites-enabled/default" ]; then
+        rm -f "/etc/nginx/sites-enabled/default"
+    fi
+    
+    # Testar Nginx e recarregar
+    nginx -t &>/dev/null
+    if [ $? -eq 0 ]; then
+        systemctl reload nginx
+        echo -e "${GREEN}Proxy Reverso Nginx configurado com sucesso!${NC}"
+    else
+        echo -e "${RED}Erro na configuração do Nginx da VPS. Verifique manualmente com 'nginx -t'.${NC}"
+    fi
+
+    # 4. Configurar SSL se selecionado
+    if [ "$SETUP_SSL" == "s" ]; then
+        echo -e "\n${YELLOW}Configurando SSL (HTTPS) com Let's Encrypt no Nginx da VPS...${NC}"
+        
+        # Instalar certbot e plugin se necessário
+        if ! command -v certbot &>/dev/null; then
+            apt update -qq
+            apt install -y certbot python3-certbot-nginx -qq
+        fi
+        
+        # Liberar portas no firewall (se ufw estiver ativo)
+        if command -v ufw &>/dev/null && ufw status | grep -q 'active'; then
+            ufw allow 80/tcp
+            ufw allow 443/tcp
+            echo -e "${GREEN}Portas 80 e 443 liberadas no firewall.${NC}"
+        fi
+        
+        # Gerar certificado usando o plugin nginx
+        certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos --email "$ADMIN_EMAIL" --redirect
+        
+        if [ $? -eq 0 ]; then
+            echo -e "${GREEN}SSL gerado e configurado com sucesso no Nginx da VPS!${NC}"
+            BASE_URL="https://$DOMAIN"
+            # Atualizar BASE_URL no application/.env
+            sed -i "s|http://$DOMAIN|https://$DOMAIN|g" application/.env
+        else
+            echo -e "${RED}Falha ao gerar SSL pelo Certbot. Verifique se o domínio $DOMAIN aponta para este IP.${NC}"
+            BASE_URL="http://$DOMAIN"
+        fi
+    fi
+    
+    # Recarregar o Nginx da VPS por segurança
+    systemctl reload nginx 2>/dev/null || true
+
+elif [ "$SETUP_SSL" == "s" ]; then
+    # SETUP_SSL="s" mas USE_HOST_PROXY="n" (Instalação standalone antiga)
+    echo -e "\n${YELLOW}Iniciando configuração de SSL Standalone (no Docker)...${NC}"
     apt install -y certbot -qq
 
     # Liberar portas no firewall (se ufw estiver ativo)
     if command -v ufw &>/dev/null && ufw status | grep -q 'active'; then
         ufw allow 80/tcp
         ufw allow 443/tcp
-        echo -e "${GREEN}Portas 80 e 443 liberadas no firewall.${NC}"
     fi
 
-    # Parar os containers para liberar a porta 80 para o Certbot standalone
+    # Parar os containers para liberar a porta 80
     cd docker
     docker compose down
     cd ..
 
-    # Gerar certificado
     certbot certonly --standalone -d "$DOMAIN" --non-interactive --agree-tos --email "$ADMIN_EMAIL"
 
     if [ $? -eq 0 ]; then
-        echo -e "${GREEN}Certificado SSL gerado com sucesso!${NC}"
-
-        # Ativar template SSL e expor porta 443 via variáveis no .env (sem modificar docker-compose.yml)
+        echo -e "${GREEN}Certificado SSL standalone gerado com sucesso!${NC}"
+        # Ajustar variáveis no .env da instância
         sed -i 's/NGINX_TEMPLATE=default/NGINX_TEMPLATE=ssl/' docker/.env
-        sed -i 's|NGINX_SSL_PORT=.*|NGINX_SSL_PORT=443|' docker/.env
-        sed -i 's/NGINX_PORT=.*/NGINX_PORT=80/' docker/.env
+        sed -i 's|NGINX_SSL_PORT_BIND=.*|NGINX_SSL_PORT_BIND=443:443|' docker/.env
+        sed -i "s|NGINX_PORT_BIND=.*|NGINX_PORT_BIND=$WEB_PORT:80|" docker/.env
         BASE_URL="https://$DOMAIN"
+        # Atualizar BASE_URL no application/.env
+        sed -i "s|http://$DOMAIN|https://$DOMAIN|g" application/.env
 
-        echo -e "${YELLOW}Re-iniciando os containers com SSL ativo...${NC}"
         cd docker
         docker compose up -d
         cd ..
     else
-        echo -e "${RED}Falha ao gerar certificado SSL. Verifique se o domínio ${DOMAIN} aponta para este IP e a porta 80 está acessível.${NC}"
-        echo -e "${YELLOW}Re-iniciando containers sem SSL...${NC}"
+        echo -e "${RED}Falha ao gerar SSL standalone. Iniciando sem SSL...${NC}"
         cd docker
         docker compose up -d
         cd ..
