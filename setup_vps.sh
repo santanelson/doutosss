@@ -132,73 +132,8 @@ get_available_port() {
     echo $port
 }
 
-# Detectar portas sugeridas
-SUGGESTED_WEB_PORT=$(get_available_port 80)
-# Se a porta 80 já estiver em uso, sugerimos a primeira porta a partir de 8000
-if [ "$SUGGESTED_WEB_PORT" -ne 80 ] && [ "$SUGGESTED_WEB_PORT" -lt 8000 ]; then
-    SUGGESTED_WEB_PORT=$(get_available_port 8000)
-fi
-
-SUGGESTED_PMA_PORT=$(get_available_port 8081)
-SUGGESTED_MYSQL_PORT=$(get_available_port 8989)
-
-# 5. Coleta de Informações Interativa
-echo -e "\n${BLUE}[2/5] CONFIGURAÇÃO DO DOMÍNIO E PORTAS${NC}"
-read -p "Digite o domínio ou IP da VPS (ex: $INSTANCE_NAME.seudominio.com.br): " DOMAIN
-if [ -z "$DOMAIN" ]; then
-    echo -e "${RED}Erro: O domínio é obrigatório.${NC}"
-    exit 1
-fi
-
-read -p "Porta para a aplicação web (Nginx) [Sugerida livre: $SUGGESTED_WEB_PORT]: " WEB_PORT
-WEB_PORT=${WEB_PORT:-$SUGGESTED_WEB_PORT}
-
-read -p "Deseja habilitar o phpMyAdmin para esta instância? (s/n) [Padrão: n]: " ENABLE_PMA
-ENABLE_PMA=${ENABLE_PMA:-n}
-
-if [ "$ENABLE_PMA" == "s" ] || [ "$ENABLE_PMA" == "S" ]; then
-    read -p "Porta externa do phpMyAdmin [Sugerida livre: $SUGGESTED_PMA_PORT]: " PMA_PORT
-    PMA_PORT=${PMA_PORT:-$SUGGESTED_PMA_PORT}
-else
-    PMA_PORT=$SUGGESTED_PMA_PORT
-fi
-
-read -p "Porta externa para o MySQL [Sugerida livre: $SUGGESTED_MYSQL_PORT]: " MYSQL_PORT
-MYSQL_PORT=${MYSQL_PORT:-$SUGGESTED_MYSQL_PORT}
-
-echo -e "\n${BLUE}[3/5] CONFIGURAÇÃO DO BANCO DE DADOS (MYSQL)${NC}"
-# Banco e usuário padrão baseados no nome da instância para evitar colisões
-read -p "Nome do Banco de Dados [Padrão: doutos_$INSTANCE_NAME]: " DB_NAME
-DB_NAME=${DB_NAME:-"doutos_$INSTANCE_NAME"}
-
-read -p "Usuário do Banco de Dados [Padrão: user_$INSTANCE_NAME]: " DB_USER
-DB_USER=${DB_USER:-"user_$INSTANCE_NAME"}
-
-# Gerar senhas aleatórias robustas por padrão
-DEFAULT_DB_PASS=$(openssl rand -hex 12)
-DEFAULT_ROOT_PASS=$(openssl rand -hex 16)
-
-read -p "Senha do Banco de Dados [Pressione Enter para auto-gerar]: " DB_PASS
-DB_PASS=${DB_PASS:-$DEFAULT_DB_PASS}
-
-read -p "Senha do Root do MySQL [Pressione Enter para auto-gerar]: " ROOT_PASS
-ROOT_PASS=${ROOT_PASS:-$DEFAULT_ROOT_PASS}
-
-echo -e "\n${BLUE}[4/5] CONFIGURAÇÃO DA CONTA ADMINISTRADORA DO SISTEMA${NC}"
-read -p "Nome do Administrador [Padrão: Admin]: " ADMIN_NAME
-ADMIN_NAME=${ADMIN_NAME:-Admin}
-
-read -p "E-mail do Administrador [Padrão: admin@$DOMAIN]: " ADMIN_EMAIL
-ADMIN_EMAIL=${ADMIN_EMAIL:-"admin@$DOMAIN"}
-
-read -p "Senha do Administrador (mínimo 6 caracteres): " ADMIN_PASS
-while [ ${#ADMIN_PASS} -lt 6 ]; do
-    echo -e "${RED}A senha deve conter pelo menos 6 caracteres.${NC}"
-    read -p "Senha do Administrador: " ADMIN_PASS
-done
-
-# 6. Escolha do método de Exposição e SSL
-echo -e "\n${BLUE}Como deseja configurar a exposição web e SSL (HTTPS) desta instância?${NC}"
+# 5. Escolha do método de Exposição e SSL (Solicitado no início para calcular as sugestões corretas de portas)
+echo -e "\n${BLUE}[2/5] ESCOLHA DO MÉTODO DE EXPOSIÇÃO E SSL${NC}"
 echo -e "1) Usar Proxy Reverso Traefik no Docker com SSL Let's Encrypt (Altamente recomendado e 100% dinâmico)"
 echo -e "2) Usar Proxy Reverso Nginx na VPS com SSL Let's Encrypt"
 echo -e "3) Usar Proxy Reverso Nginx na VPS SEM SSL (HTTP normal)"
@@ -227,6 +162,76 @@ else
     USE_HOST_PROXY="n"
     SETUP_SSL="n"
 fi
+
+# Detectar portas sugeridas com base na escolha de exposição
+if [ "$USE_TRAEFIK" == "s" ] || [ "$USE_HOST_PROXY" == "s" ]; then
+    # Proxy Reverso (Traefik ou Nginx VPS) -> Sugerir porta alta para o container
+    SUGGESTED_WEB_PORT=$(get_available_port 8000)
+else
+    # Standalone -> Tentar sugerir porta 80. Se ocupada, sugerir porta alta.
+    SUGGESTED_WEB_PORT=$(get_available_port 80)
+    if [ "$SUGGESTED_WEB_PORT" -ne 80 ] && [ "$SUGGESTED_WEB_PORT" -lt 8000 ]; then
+        SUGGESTED_WEB_PORT=$(get_available_port 8000)
+    fi
+fi
+
+SUGGESTED_PMA_PORT=$(get_available_port 8081)
+SUGGESTED_MYSQL_PORT=$(get_available_port 8989)
+
+# 6. Coleta de Informações Interativa
+echo -e "\n${BLUE}[3/5] CONFIGURAÇÃO DO DOMÍNIO E PORTAS${NC}"
+read -p "Digite o domínio ou IP da VPS (ex: $INSTANCE_NAME.seudominio.com.br): " DOMAIN
+if [ -z "$DOMAIN" ]; then
+    echo -e "${RED}Erro: O domínio é obrigatório.${NC}"
+    exit 1
+fi
+
+read -p "Porta para a aplicação web (Nginx) [Sugerida livre: $SUGGESTED_WEB_PORT]: " WEB_PORT
+WEB_PORT=${WEB_PORT:-$SUGGESTED_WEB_PORT}
+
+read -p "Deseja habilitar o phpMyAdmin para esta instância? (s/n) [Padrão: n]: " ENABLE_PMA
+ENABLE_PMA=${ENABLE_PMA:-n}
+
+if [ "$ENABLE_PMA" == "s" ] || [ "$ENABLE_PMA" == "S" ]; then
+    read -p "Porta externa do phpMyAdmin [Sugerida livre: $SUGGESTED_PMA_PORT]: " PMA_PORT
+    PMA_PORT=${PMA_PORT:-$SUGGESTED_PMA_PORT}
+else
+    PMA_PORT=$SUGGESTED_PMA_PORT
+fi
+
+read -p "Porta externa para o MySQL [Sugerida livre: $SUGGESTED_MYSQL_PORT]: " MYSQL_PORT
+MYSQL_PORT=${MYSQL_PORT:-$SUGGESTED_MYSQL_PORT}
+
+echo -e "\n${BLUE}[4/5] CONFIGURAÇÃO DO BANCO DE DADOS (MYSQL)${NC}"
+# Banco e usuário padrão baseados no nome da instância para evitar colisões
+read -p "Nome do Banco de Dados [Padrão: doutos_$INSTANCE_NAME]: " DB_NAME
+DB_NAME=${DB_NAME:-"doutos_$INSTANCE_NAME"}
+
+read -p "Usuário do Banco de Dados [Padrão: user_$INSTANCE_NAME]: " DB_USER
+DB_USER=${DB_USER:-"user_$INSTANCE_NAME"}
+
+# Gerar senhas aleatórias robustas por padrão
+DEFAULT_DB_PASS=$(openssl rand -hex 12)
+DEFAULT_ROOT_PASS=$(openssl rand -hex 16)
+
+read -p "Senha do Banco de Dados [Pressione Enter para auto-gerar]: " DB_PASS
+DB_PASS=${DB_PASS:-$DEFAULT_DB_PASS}
+
+read -p "Senha do Root do MySQL [Pressione Enter para auto-gerar]: " ROOT_PASS
+ROOT_PASS=${ROOT_PASS:-$DEFAULT_ROOT_PASS}
+
+echo -e "\n${BLUE}[5/5] CONFIGURAÇÃO DA CONTA ADMINISTRADORA DO SISTEMA${NC}"
+read -p "Nome do Administrador [Padrão: Admin]: " ADMIN_NAME
+ADMIN_NAME=${ADMIN_NAME:-Admin}
+
+read -p "E-mail do Administrador [Padrão: admin@$DOMAIN]: " ADMIN_EMAIL
+ADMIN_EMAIL=${ADMIN_EMAIL:-"admin@$DOMAIN"}
+
+read -p "Senha do Administrador (mínimo 6 caracteres): " ADMIN_PASS
+while [ ${#ADMIN_PASS} -lt 6 ]; do
+    echo -e "${RED}A senha deve conter pelo menos 6 caracteres.${NC}"
+    read -p "Senha do Administrador: " ADMIN_PASS
+done
 
 # Configurar as variáveis de portas de acordo com a opção de exposição
 if [ "$USE_TRAEFIK" == "s" ]; then
