@@ -232,6 +232,8 @@ cat <<EOF > docker/.env
 COMPOSE_PROJECT_NAME=$INSTANCE_NAME
 NGINX_HOST=$DOMAIN
 NGINX_PORT=$WEB_PORT
+NGINX_TEMPLATE=default
+NGINX_SSL_PORT=127.0.0.1:9443
 PHP_MY_ADMIN_PORT=$PMA_PORT
 
 MYSQL_MAPOS_VERSION=8.4
@@ -309,31 +311,37 @@ echo -e "${GREEN}Administrador configurado!${NC}"
 if [ "$SETUP_SSL" == "s" ] || [ "$SETUP_SSL" == "S" ]; then
     echo -e "\n${YELLOW}Iniciando configuração de SSL (HTTPS) com Let's Encrypt...${NC}"
     apt install -y certbot -qq
-    
+
+    # Liberar portas no firewall (se ufw estiver ativo)
+    if command -v ufw &>/dev/null && ufw status | grep -q 'active'; then
+        ufw allow 80/tcp
+        ufw allow 443/tcp
+        echo -e "${GREEN}Portas 80 e 443 liberadas no firewall.${NC}"
+    fi
+
     # Parar os containers para liberar a porta 80 para o Certbot standalone
     cd docker
     docker compose down
     cd ..
-    
+
     # Gerar certificado
     certbot certonly --standalone -d "$DOMAIN" --non-interactive --agree-tos --email "$ADMIN_EMAIL"
-    
+
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}Certificado SSL gerado com sucesso!${NC}"
-        
-        # Ativar template SSL no docker-compose (troca default.template por ssl.template)
-        # O nginx já tem /etc/letsencrypt montado via docker-compose.yml
-        # Atualizamos o command do nginx para usar o ssl.template.conf
-        sed -i 's|envsubst.*default.template.*default.conf|envsubst '\''$$NGINX_HOST$$NGINX_PORT'\'' < /etc/nginx/conf.d/ssl.template > /etc/nginx/conf.d/default.conf|g' docker/docker-compose.yml
-        
+
+        # Ativar template SSL e expor porta 443 via variáveis no .env (sem modificar docker-compose.yml)
+        sed -i 's/NGINX_TEMPLATE=default/NGINX_TEMPLATE=ssl/' docker/.env
+        sed -i 's|NGINX_SSL_PORT=.*|NGINX_SSL_PORT=443|' docker/.env
+        sed -i 's/NGINX_PORT=.*/NGINX_PORT=80/' docker/.env
+        BASE_URL="https://$DOMAIN"
+
         echo -e "${YELLOW}Re-iniciando os containers com SSL ativo...${NC}"
         cd docker
         docker compose up -d
         cd ..
-        
-        BASE_URL="https://$DOMAIN"
     else
-        echo -e "${RED}Falha ao gerar certificado SSL. Verifique se o domínio aponta para este IP e a porta 80 está acessível.${NC}"
+        echo -e "${RED}Falha ao gerar certificado SSL. Verifique se o domínio ${DOMAIN} aponta para este IP e a porta 80 está acessível.${NC}"
         echo -e "${YELLOW}Re-iniciando containers sem SSL...${NC}"
         cd docker
         docker compose up -d
