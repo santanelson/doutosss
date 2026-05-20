@@ -238,7 +238,7 @@ if [ "$USE_TRAEFIK" == "s" ]; then
     if [ "$WEB_PORT" -eq 80 ] || [ "$WEB_PORT" -eq 443 ]; then
         WEB_PORT=$(get_available_port 8080)
     fi
-    NGINX_PORT_BIND="127.0.0.1:$WEB_PORT:80"
+    NGINX_PORT_BIND="127.0.0.1:$WEB_PORT:$WEB_PORT"
     NGINX_SSL_PORT_BIND="127.0.0.1:9443:443"
     NGINX_TEMPLATE="default"
     TRAEFIK_ENABLE="true"
