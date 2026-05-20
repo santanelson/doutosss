@@ -221,6 +221,13 @@ else
 fi
 
 # Configurar as variáveis de portas de acordo com a opção de exposição
+if [ "$USE_HOST_PROXY" == "s" ] && { [ "$WEB_PORT" == "80" ] || [ "$WEB_PORT" == "443" ]; }; then
+    OLD_WEB_PORT=$WEB_PORT
+    WEB_PORT=$(get_available_port 8000)
+    echo -e "${YELLOW}Aviso: Para usar o Proxy Reverso Nginx na VPS, a porta da aplicação web (Docker) não pode ser 80 ou 443.${NC}"
+    echo -e "${YELLOW}Porta da aplicação alterada de $OLD_WEB_PORT para a porta livre: $WEB_PORT${NC}"
+fi
+
 if [ "$USE_HOST_PROXY" == "s" ]; then
     NGINX_PORT_BIND="127.0.0.1:$WEB_PORT:$WEB_PORT"
     NGINX_SSL_PORT_BIND="127.0.0.1:9443:443"
