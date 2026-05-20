@@ -87,7 +87,7 @@ $totalProdutos = 0; ?>
                             <tbody>
                                 <?php if ($emitente == null) { ?>
                                     <tr>
-                                        <td colspan="5" class="alert">Você precisa configurar os dados do emitente. >>><a href="<?php echo base_url(); ?>index.php/mapos/emitente">Configurar</a>
+                                        <td colspan="5" class="alert">Você precisa configurar os dados do emitente. >>><a href="<?php echo base_url(); ?>index.php/doutos/emitente">Configurar</a>
                                             <<<</td> </tr> <?php } else { ?>
                                     <td style="width: 25% ;text-align: center" ><img src="<?php echo $emitente->url_logo; ?>" style="max-height: 100px"></td>
                                     <tr>
@@ -294,7 +294,7 @@ $totalProdutos = 0; ?>
                                 <tbody>
                                     <?php if ($emitente == null) { ?>
                                         <tr>
-                                            <td colspan="5" class="alert">Você precisa configurar os dados do emitente. >>><a href="<?php echo base_url(); ?>index.php/mapos/emitente">Configurar</a><<<</td>
+                                            <td colspan="5" class="alert">Você precisa configurar os dados do emitente. >>><a href="<?php echo base_url(); ?>index.php/doutos/emitente">Configurar</a><<<</td>
                                         </tr>
                                     <?php } else { ?>
                                         <td style="width: 25% ;text-align: center" ><img src="<?php echo $emitente->url_logo; ?>" style="max-height: 100px"></td>

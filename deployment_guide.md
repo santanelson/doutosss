@@ -75,11 +75,11 @@ Caso prefira configurar passo a passo de forma manual:
    ```env
    NGINX_HOST=doutos.seudominio.com
    NGINX_PORT=80
-   MYSQL_MAPOS_PORT=3306
-   MYSQL_MAPOS_DATABASE=doutos
-   MYSQL_MAPOS_ROOT_PASSWORD=senha_forte_root
-   MYSQL_MAPOS_USER=doutos
-   MYSQL_MAPOS_PASSWORD=senha_forte_usuario
+   MYSQL_DOUTOS_PORT=3306
+   MYSQL_DOUTOS_DATABASE=doutos
+   MYSQL_DOUTOS_ROOT_PASSWORD=senha_forte_root
+   MYSQL_DOUTOS_USER=doutos
+   MYSQL_DOUTOS_PASSWORD=senha_forte_usuario
    ```
 
 2. **Crie o arquivo `application/.env` na VPS:**

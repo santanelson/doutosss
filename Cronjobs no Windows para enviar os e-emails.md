@@ -56,7 +56,7 @@ Esse tutorial ensinará a criar cronjobs para envio de e-mails do sistema Map-os
 
 7- Nesta janela, deixa a opção selecionada 'Iniciar um programa', 
 e em 'Programa/Script' coloque o caminho do seu php.exe, se for Xampp o caminho padrão é 'C:\xampp\php\php.exe', 
-em baixo em 'Adicione argumentos' coloque o comando do map-os para processar a fila de e-mails 'index.php email/process' na próxima opção 'Iniciar em' coloque o diretório onde está a pasta do seu map-os desta forma (Para o Xampp) 'C:\xampp\htdocs\mapos' e clique em 'Ok':
+em baixo em 'Adicione argumentos' coloque o comando do map-os para processar a fila de e-mails 'index.php email/process' na próxima opção 'Iniciar em' coloque o diretório onde está a pasta do seu map-os desta forma (Para o Xampp) 'C:\xampp\htdocs\doutos' e clique em 'Ok':
 
 ![Oi07I9J](https://user-images.githubusercontent.com/10822915/158884265-64539007-95a2-4e71-b80a-7d4ae14bee49.png)
 

@@ -11,7 +11,7 @@ class UsuariosController extends REST_Controller
         parent::__construct();
 
         $this->load->library('Authorization_Token');
-        $this->load->model('Mapos_model');
+        $this->load->model('Doutos_model');
         $this->load->model('usuarios_model');
     }
 
@@ -254,10 +254,10 @@ class UsuariosController extends REST_Controller
             ], REST_Controller::HTTP_UNAUTHORIZED);
         }
 
-        $this->load->model('Mapos_model');
+        $this->load->model('Doutos_model');
         $email = $this->post('email', true);
         $password = $this->post('password', true);
-        $user = $this->Mapos_model->check_credentials($email);
+        $user = $this->Doutos_model->check_credentials($email);
 
         if ($user) {
             // Verificar se acesso está expirado

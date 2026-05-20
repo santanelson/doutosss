@@ -18,7 +18,7 @@ class GerencianetSdk extends BasePaymentGateway
         $this->ci->load->model('Os_model');
         $this->ci->load->model('vendas_model');
         $this->ci->load->model('cobrancas_model');
-        $this->ci->load->model('mapos_model');
+        $this->ci->load->model('doutos_model');
         $this->ci->load->model('email_model');
 
         $gerenciaNetConfig = $this->ci->config->item('payment_gateways')['GerencianetSdk'];
@@ -53,7 +53,7 @@ class GerencianetSdk extends BasePaymentGateway
             throw new \Exception('Cobrança não existe!');
         }
 
-        $emitente = $this->ci->mapos_model->getEmitente();
+        $emitente = $this->ci->doutos_model->getEmitente();
         if (! $emitente) {
             throw new \Exception('Emitente não configurado!');
         }
@@ -258,7 +258,7 @@ class GerencianetSdk extends BasePaymentGateway
                 ],
             ],
             'metadata' => [
-                'notification_url' => 'http://mapos.com.br/',
+                'notification_url' => 'http://doutos.com.br/',
             ],
             'payment' => [
                 'banking_billet' => [
@@ -377,7 +377,7 @@ class GerencianetSdk extends BasePaymentGateway
         ];
 
         $metadata = [
-            "notification_url" => "http://mapos.com.br/"
+            "notification_url" => "http://doutos.com.br/"
         ];
 
         $settings = [

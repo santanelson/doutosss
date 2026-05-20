@@ -155,12 +155,12 @@ class OsController extends REST_Controller
         ];
 
         if (is_numeric($id = $this->os_model->add('os', $data, true))) {
-            $this->load->model('mapos_model');
+            $this->load->model('doutos_model');
             $this->load->model('usuarios_model');
 
             $idOs = $id;
             $os = $this->os_model->getById($idOs);
-            $emitente = $this->mapos_model->getEmitente();
+            $emitente = $this->doutos_model->getEmitente();
             $tecnico = $this->usuarios_model->getById($os->usuarios_id);
 
             // Verificar configuração de notificação
@@ -280,12 +280,12 @@ class OsController extends REST_Controller
         }
 
         if ($this->os_model->edit('os', $data, 'idOs', $id)) {
-            $this->load->model('mapos_model');
+            $this->load->model('doutos_model');
             $this->load->model('usuarios_model');
 
             $idOs = $id;
             $os = $this->os_model->getById($idOs);
-            $emitente = $this->mapos_model->getEmitente();
+            $emitente = $this->doutos_model->getEmitente();
             $tecnico = $this->usuarios_model->getById($os->usuarios_id);
 
             // Verificar configuração de notificação
@@ -933,7 +933,7 @@ class OsController extends REST_Controller
     {
         $dados = [];
 
-        $this->load->model('mapos_model');
+        $this->load->model('doutos_model');
         $dados['result'] = $this->os_model->getById($idOs);
         if (! isset($dados['result']->email)) {
             return false;
@@ -941,7 +941,7 @@ class OsController extends REST_Controller
 
         $dados['produtos'] = $this->os_model->getProdutos($idOs);
         $dados['servicos'] = $this->os_model->getServicos($idOs);
-        $dados['emitente'] = $this->mapos_model->getEmitente();
+        $dados['emitente'] = $this->doutos_model->getEmitente();
         $emitente = $dados['emitente'];
         if (! isset($emitente->email)) {
             return false;
@@ -999,8 +999,8 @@ class OsController extends REST_Controller
 
     public function criarTextoWhats($os, $totalProdutos, $totalServico)
     {
-        $this->load->model('mapos_model');
-        $emitente = $this->mapos_model->getEmitente();
+        $this->load->model('doutos_model');
+        $emitente = $this->doutos_model->getEmitente();
 
         $troca = [
             $os->nomeCliente,

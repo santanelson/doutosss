@@ -16,7 +16,7 @@ class Relatorios extends MY_Controller
 
         $this->load->model('Relatorios_model');
         $this->load->model('Usuarios_model');
-        $this->load->model('Mapos_model');
+        $this->load->model('Doutos_model');
 
         $this->data['menuRelatorios'] = 'Relatórios';
     }
@@ -62,7 +62,7 @@ class Relatorios extends MY_Controller
         $data['dataFinal'] = date('d/m/Y', strtotime($dataFinal));
 
         $data['clientes'] = $this->Relatorios_model->clientesCustom($dataInicial, $dataFinal, $this->input->get('tipocliente'));
-        $data['emitente'] = $this->Mapos_model->getEmitente();
+        $data['emitente'] = $this->Doutos_model->getEmitente();
         $data['title'] = 'Relatório de Clientes Customizado';
         $data['topo'] = $this->load->view('relatorios/imprimir/imprimirTopo', $data, true);
 
@@ -128,7 +128,7 @@ class Relatorios extends MY_Controller
         }
 
         $data['clientes'] = $this->Relatorios_model->clientesRapid();
-        $data['emitente'] = $this->Mapos_model->getEmitente();
+        $data['emitente'] = $this->Doutos_model->getEmitente();
         $data['title'] = 'Relatório de Clientes';
         $data['topo'] = $this->load->view('relatorios/imprimir/imprimirTopo', $data, true);
 
@@ -146,7 +146,7 @@ class Relatorios extends MY_Controller
         }
 
         $data['produtos'] = $this->Relatorios_model->produtosRapid();
-        $data['emitente'] = $this->Mapos_model->getEmitente();
+        $data['emitente'] = $this->Doutos_model->getEmitente();
         $data['title'] = 'Relatório de Produtos';
         $data['topo'] = $this->load->view('relatorios/imprimir/imprimirTopo', $data, true);
 
@@ -163,7 +163,7 @@ class Relatorios extends MY_Controller
         }
 
         $data['produtos'] = $this->Relatorios_model->produtosRapidMin();
-        $data['emitente'] = $this->Mapos_model->getEmitente();
+        $data['emitente'] = $this->Doutos_model->getEmitente();
         $data['title'] = 'Relatório de Produtos Com Estoque Mínimo';
         $data['topo'] = $this->load->view('relatorios/imprimir/imprimirTopo', $data, true);
 
@@ -185,7 +185,7 @@ class Relatorios extends MY_Controller
         $estoqueFinal = $this->input->get('estoqueFinal');
 
         $data['produtos'] = $this->Relatorios_model->produtosCustom($precoInicial, $precoFinal, $estoqueInicial, $estoqueFinal);
-        $data['emitente'] = $this->Mapos_model->getEmitente();
+        $data['emitente'] = $this->Doutos_model->getEmitente();
         $data['title'] = 'Relatório de Produtos Customizado';
         $data['topo'] = $this->load->view('relatorios/imprimir/imprimirTopo', $data, true);
 
@@ -268,7 +268,7 @@ class Relatorios extends MY_Controller
         }
 
         $data['resultados'] = $this->Relatorios_model->skuRapid();
-        $data['emitente'] = $this->Mapos_model->getEmitente();
+        $data['emitente'] = $this->Doutos_model->getEmitente();
         $data['title'] = 'Relatório SKU';
         $data['topo'] = $this->load->view('relatorios/imprimir/imprimirTopo', $data, true);
 
@@ -322,7 +322,7 @@ class Relatorios extends MY_Controller
         }
 
         $data['resultados'] = $this->Relatorios_model->skuCustom($dataInicial, $dataFinal, $cliente, $origem);
-        $data['emitente'] = $this->Mapos_model->getEmitente();
+        $data['emitente'] = $this->Doutos_model->getEmitente();
         $data['title'] = 'Relatório SKU';
         $data['topo'] = $this->load->view('relatorios/imprimir/imprimirTopo', $data, true);
 
@@ -353,7 +353,7 @@ class Relatorios extends MY_Controller
         $precoFinal = $this->input->get('precoFinal');
 
         $data['servicos'] = $this->Relatorios_model->servicosCustom($precoInicial, $precoFinal);
-        $data['emitente'] = $this->Mapos_model->getEmitente();
+        $data['emitente'] = $this->Doutos_model->getEmitente();
         $data['title'] = 'Relatório de Serviços Customizado';
         $data['topo'] = $this->load->view('relatorios/imprimir/imprimirTopo', $data, true);
 
@@ -370,7 +370,7 @@ class Relatorios extends MY_Controller
         }
 
         $data['servicos'] = $this->Relatorios_model->servicosRapid();
-        $data['emitente'] = $this->Mapos_model->getEmitente();
+        $data['emitente'] = $this->Doutos_model->getEmitente();
         $data['title'] = 'Relatório de Serviços';
         $data['topo'] = $this->load->view('relatorios/imprimir/imprimirTopo', $data, true);
 
@@ -493,7 +493,7 @@ class Relatorios extends MY_Controller
         $data['total_servicos'] = $totalServicos;
         $data['total_geral_desconto'] = $totalDesconto;
         $data['total_geral'] = $totalValorDesconto + $valorTotal;
-        $data['emitente'] = $this->Mapos_model->getEmitente();
+        $data['emitente'] = $this->Doutos_model->getEmitente();
         $data['title'] = 'Relatório de OS';
         $data['topo'] = $this->load->view('relatorios/imprimir/imprimirTopo', $data, true);
 
@@ -609,7 +609,7 @@ class Relatorios extends MY_Controller
         $title = $status == null ? 'Todas' : $status;
         $user = $responsavel == null ? 'Não foi selecionado' : $this->Usuarios_model->get(1, intval($responsavel) - 1);
 
-        $emitente = $this->Mapos_model->getEmitente();
+        $emitente = $this->Doutos_model->getEmitente();
         $usuario = is_array($user) ? $user[0]->nome : $user;
 
         $data['title'] = 'Relatório de OS - ' . $title;
@@ -622,7 +622,7 @@ class Relatorios extends MY_Controller
 
         $data['dataInicial'] = $dataInicial != null ? date('d-m-Y', strtotime($dataInicial)) : 'indefinida';
         $data['dataFinal'] = $dataFinal != null ? date('d-m-Y', strtotime($dataFinal)) : 'indefinida';
-        $data['emitente'] = $this->Mapos_model->getEmitente();
+        $data['emitente'] = $this->Doutos_model->getEmitente();
         $data['topo'] = $this->load->view('relatorios/imprimir/imprimirTopo', $data, true);
 
         $html = $this->load->view('relatorios/imprimir/imprimirOs', $data, true);
@@ -700,7 +700,7 @@ class Relatorios extends MY_Controller
         }
 
         $data['lancamentos'] = $this->Relatorios_model->financeiroRapid();
-        $data['emitente'] = $this->Mapos_model->getEmitente();
+        $data['emitente'] = $this->Doutos_model->getEmitente();
         $data['title'] = 'Relatório Financeiro';
         $data['topo'] = $this->load->view('relatorios/imprimir/imprimirTopo', $data, true);
 
@@ -772,7 +772,7 @@ class Relatorios extends MY_Controller
         }
 
         $data['lancamentos'] = $this->Relatorios_model->financeiroCustom($dataInicial, $dataFinal, $tipo, $situacao);
-        $data['emitente'] = $this->Mapos_model->getEmitente();
+        $data['emitente'] = $this->Doutos_model->getEmitente();
         $data['title'] = 'Relatório Financeiro Customizado';
         $data['topo'] = $this->load->view('relatorios/imprimir/imprimirTopo', $data, true);
 
@@ -876,7 +876,7 @@ class Relatorios extends MY_Controller
         $data['total_vendas'] = $totalVendas;
         $data['total_geral_desconto'] = $totalDesconto;
         $data['total_geral'] = $totalValorDesconto;
-        $data['emitente'] = $this->Mapos_model->getEmitente();
+        $data['emitente'] = $this->Doutos_model->getEmitente();
         $data['title'] = 'Relatório de Vendas Rápido';
         $data['topo'] = $this->load->view('relatorios/imprimir/imprimirTopo', $data, true);
 
@@ -968,7 +968,7 @@ class Relatorios extends MY_Controller
 
         $data['vendas'] = $vendas;
         $data['total_vendas'] = $totalVendas;
-        $data['emitente'] = $this->Mapos_model->getEmitente();
+        $data['emitente'] = $this->Doutos_model->getEmitente();
         $data['title'] = 'Relatório de Vendas Customizado';
         $data['topo'] = $this->load->view('relatorios/imprimir/imprimirTopo', $data, true);
 

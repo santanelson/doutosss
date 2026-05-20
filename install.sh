@@ -33,7 +33,7 @@ fi
     dirDefault=/opt/InstaladorMAPOS
     urlXampp="https://sourceforge.net/projects/xampp/files/XAMPP%20Linux/8.2.12/xampp-linux-x64-8.2.12-0-installer.run/download"
     dirXampp=/opt/lampp
-    dirMaposConfig=/opt/lampp/htdocs/mapos/application/.env
+    dirMaposConfig=/opt/lampp/htdocs/doutos/application/.env
     dirHtdocs=/opt/lampp/htdocs
     dirMySQL=/opt/lampp/bin/mysql
 # <=== Fim SET Diretorios ===>
@@ -139,34 +139,34 @@ fi
 #  <=== Inicio Instalação MAP-OS ===>
     clear
     echo "# INSTALACAO SISTEMA MAP-OS..."
-    if [ -d "$dirHtdocs/mapos" ]
+    if [ -d "$dirHtdocs/doutos" ]
     then
         echo "* Map-OS presente no sistema."
     else
         echo "* Baixando a ultima versao do projeto."
 
         if [ "$downMapos" = "release" ]; then
-            wget --quiet --show-progress -O $dirDefault/MapOS.zip $(curl -s https://api.github.com/repos/RamonSilva20/mapos/releases/latest | grep "zipball_url" | awk -F\" '{print $4}')
+            wget --quiet --show-progress -O $dirDefault/MapOS.zip $(curl -s https://api.github.com/repos/RamonSilva20/doutos/releases/latest | grep "zipball_url" | awk -F\" '{print $4}')
         elif [ "$downMapos" = "master" ]; then
-            wget --quiet --show-progress -O $dirDefault/MapOS.zip https://github.com/RamonSilva20/mapos/archive/refs/heads/master.zip
+            wget --quiet --show-progress -O $dirDefault/MapOS.zip https://github.com/RamonSilva20/doutos/archive/refs/heads/master.zip
         fi
         echo
         echo "* Extraindo projeto."
         unzip -q $dirDefault/MapOS.zip -d $dirHtdocs/
-        mv -i $dirHtdocs/*mapos* $dirHtdocs/mapos
+        mv -i $dirHtdocs/*doutos* $dirHtdocs/doutos
         echo
         echo "* Atribuindo permissões."
-        sudo chmod 777 $dirHtdocs/mapos/updates/
-        sudo chmod 777 $dirHtdocs/mapos/application/
-        sudo chmod 777 $dirHtdocs/mapos/index.php
-        sudo chmod 777 $dirHtdocs/mapos/application/config/config.php
-        sudo chmod 777 $dirHtdocs/mapos/application/config/database.php
-        sudo chmod 777 $dirHtdocs/mapos/application/config/.env
-        sudo chmod 777 $dirHtdocs/mapos/application/config/.env.example
-        sudo rm -f $dirHtdocs/mapos/.htaccess
+        sudo chmod 777 $dirHtdocs/doutos/updates/
+        sudo chmod 777 $dirHtdocs/doutos/application/
+        sudo chmod 777 $dirHtdocs/doutos/index.php
+        sudo chmod 777 $dirHtdocs/doutos/application/config/config.php
+        sudo chmod 777 $dirHtdocs/doutos/application/config/database.php
+        sudo chmod 777 $dirHtdocs/doutos/application/config/.env
+        sudo chmod 777 $dirHtdocs/doutos/application/config/.env.example
+        sudo rm -f $dirHtdocs/doutos/.htaccess
         echo
         echo "* Criando banco de dados."
-        $dirMySQL -u root -e "CREATE DATABASE mapos;"
+        $dirMySQL -u root -e "CREATE DATABASE doutos;"
     fi
 # <=== Fim Instalação MAP-OS ===>
 
@@ -184,32 +184,32 @@ fi
     fi
     echo
     echo "* Verificando complemento"
-    if [ -f "$dirHtdocs/mapos/application/vendor" ]
+    if [ -f "$dirHtdocs/doutos/application/vendor" ]
     then
         echo "* Complementos ja instalados."
     else
         echo "* Instalando complementos."
-        cd $dirHtdocs/mapos
+        cd $dirHtdocs/doutos
         composer install --no-dev -n --ignore-platform-reqs &> /dev/null
     fi
 # <=== Fim Instalação Composer ===>
 
 # <=== Inicio Configuração pelo Browser ===>
     clear
-    echo "# CONFIGURANDO MAPOS..."
-    echo "Acesse o Map-OS via navegador http://localhost/mapos/install"
+    echo "# CONFIGURANDO DOUTOS..."
+    echo "Acesse o Map-OS via navegador http://localhost/doutos/install"
     echo "Clique me PROXIMO e insira os dados abaixo:"
     echo
     echo "Host: localhost"
     echo "Usuario: root"
     echo "Senha: \"Em Branco\""
-    echo "Banco de Dados: mapos"
+    echo "Banco de Dados: doutos"
     echo
     echo Nome: "Digite seu Nome Completo"
     echo Email: "Informe seu E-mail para Login"
     echo Senha: "Insira sua senha para acesso"
     echo
-    echo "URL: http://localhost/mapos/"
+    echo "URL: http://localhost/doutos/"
     echo
     echo "Obs: Caso a instalacao nao tenha sido bem sucedida, encerre o script e execute novamente."
     read -p "Gostaria de realizar a configuracao personalizada? (S/N)" resposta
@@ -258,8 +258,8 @@ fi
             echo "* Nao configurado disparo automatico."
         elif [ "$resposta" = "S" ] || [ "$resposta" = "s" ]; then
             echo "* Disparo automatico configurado com sucesso."
-            (crontab -l ; echo "*/2 * * * * php $dirHtdocs/mapos/index.php email/process") | crontab -
-            (crontab -l ; echo "*/5 * * * * php $dirHtdocs/mapos/index.php email/retry") | crontab -
+            (crontab -l ; echo "*/2 * * * * php $dirHtdocs/doutos/index.php email/process") | crontab -
+            (crontab -l ; echo "*/5 * * * * php $dirHtdocs/doutos/index.php email/retry") | crontab -
         fi
     # <=== Fim Configuracao da Cron ===>
 
@@ -270,7 +270,7 @@ fi
             echo "* Nao alterado valor da primeira OS."
     elif [ "$resposta" = "S" ] || [ "$resposta" = "s" ]; then
         read -p "Informe o numero (Padrao: 1):" nOS
-        $dirMySQL -u root -e "USE mapos; ALTER TABLE os AUTO_INCREMENT=$nOS;"
+        $dirMySQL -u root -e "USE doutos; ALTER TABLE os AUTO_INCREMENT=$nOS;"
         echo "* Número da próxima OS alterado para $nOS"
     fi
     # <=== Fim Configuracao da Cron ===>

@@ -18,7 +18,7 @@
     </a>
     <!-- Start Pesquisar-->
     <li class="search-box">
-        <form style="display: flex" action="<?= site_url('mapos/pesquisar') ?>">
+        <form style="display: flex" action="<?= site_url('doutos/pesquisar') ?>">
         <button style="background:transparent;border:transparent" type="submit" class="tip-bottom" title="">
                 <i class='bx bx-search iconX'></i></button>
                 <input style="background:transparent;<?= $configuration['app_theme'] == 'white' ? 'color:#313030;' : 'color:#fff;' ?>border:transparent" type="search" name="termo" placeholder="Pesquise aqui...">

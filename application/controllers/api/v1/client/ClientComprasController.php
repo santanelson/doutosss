@@ -18,7 +18,7 @@ class ClientComprasController extends REST_Controller
         $this->load->library('Authorization_Token');
         $this->load->library('pagination');
         $this->load->library('format');
-        $this->load->model('mapos_model');
+        $this->load->model('doutos_model');
         $this->load->model('os_model');
     }
 
@@ -52,7 +52,7 @@ class ClientComprasController extends REST_Controller
         }
 
         $pixKey = $this->CI->db->get_where('configuracoes', ['config' => 'pix_key'])->row_object()->valor;
-        $emitente = $this->mapos_model->getEmitente();
+        $emitente = $this->doutos_model->getEmitente();
         $qrCode = $this->os_model->getQrCode(
             $idVendas,
             $pixKey,

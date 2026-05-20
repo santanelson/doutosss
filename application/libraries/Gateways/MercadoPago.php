@@ -18,7 +18,7 @@ class MercadoPago extends BasePaymentGateway
         $this->ci->load->model('Os_model');
         $this->ci->load->model('vendas_model');
         $this->ci->load->model('cobrancas_model');
-        $this->ci->load->model('mapos_model');
+        $this->ci->load->model('doutos_model');
         $this->ci->load->model('email_model');
 
         $this->mercadoPagoConfig = $this->ci->config->item('payment_gateways')['MercadoPago'];
@@ -50,7 +50,7 @@ class MercadoPago extends BasePaymentGateway
             throw new \Exception('Cobrança não existe!');
         }
 
-        $emitente = $this->ci->mapos_model->getEmitente();
+        $emitente = $this->ci->doutos_model->getEmitente();
         if (!$emitente) {
             throw new \Exception('Emitente não configurado!');
         }

@@ -1,16 +1,16 @@
 
-![MapOS](https://raw.githubusercontent.com/RamonSilva20/mapos/master/assets/img/logo.png)
+![MapOS](https://raw.githubusercontent.com/RamonSilva20/doutos/master/assets/img/logo.png)
 
 ![version](https://img.shields.io/badge/version-4.53.2-blue.svg?longCache=true&style=flat-square)
 ![license](https://img.shields.io/badge/license-Apache-green.svg?longCache=true&style=flat-square)
 ![theme](https://img.shields.io/badge/theme-Matrix--Admin-lightgrey.svg?longCache=true&style=flat-square)
-![issues](https://img.shields.io/github/issues/RamonSilva20/mapos.svg?longCache=true&style=flat-square)
-![contributors](https://img.shields.io/github/contributors/RamonSilva20/mapos.svg?longCache=true&style=flat-square)
+![issues](https://img.shields.io/github/issues/RamonSilva20/doutos.svg?longCache=true&style=flat-square)
+![contributors](https://img.shields.io/github/contributors/RamonSilva20/doutos.svg?longCache=true&style=flat-square)
 
-### Contato: contato@mapos.com.br
-### [Feedback](https://github.com/RamonSilva20/mapos/discussions) - Vote ou sugira melhorias
+### Contato: contato@doutos.com.br
+### [Feedback](https://github.com/RamonSilva20/doutos/discussions) - Vote ou sugira melhorias
 
-![Map-OS](https://raw.githubusercontent.com/RamonSilva20/mapos/master/docs/dashboard.png)
+![Map-OS](https://raw.githubusercontent.com/RamonSilva20/doutos/master/docs/dashboard.png)
 
 ### Apoie o Projeto Map-OS - Doações
 
@@ -19,7 +19,7 @@ Se ele te ajuda no dia a dia, considere apoiar o desenvolvimento para que o sist
 
 Você pode contribuir de forma simples e segura pelo link abaixo:
 
-**Faça uma doação:** https://donate.mapos.com.br
+**Faça uma doação:** https://donate.doutos.com.br
 
 Toda contribuição, independente do valor, faz a diferença.
 Obrigado por apoiar o Map-OS!
@@ -40,7 +40,7 @@ O **Map-OS** é um projeto de código aberto **mantido e desenvolvido pela empre
 1. Faça o download dos arquivos.
 2. Extraia o pacote e copie para seu webserver.
 3. Rode o comando `composer install --no-dev` a partir da raiz do projeto.
-4. Acesse sua URL e inicie a instalação, é bem simples, basta preencher as informações no assistente de instalação **MAPOS**.
+4. Acesse sua URL e inicie a instalação, é bem simples, basta preencher as informações no assistente de instalação **DOUTOS**.
 5. Configure o email de envio em Configurações > Sistema > E-mail .
 6. Configurar cron jobs para envio de e-mail:
     ##### Enviar emails pendentes a cada 2 minutos.
@@ -61,9 +61,9 @@ O **Map-OS** é um projeto de código aberto **mantido e desenvolvido pela empre
 ```
 1. Por favor, insira as informações da sua conexão de banco de dados.
 Host: mysql
-Usuário: mapos
-Senha: mapos
-Banco de Dados: mapos
+Usuário: doutos
+Senha: doutos
+Banco de Dados: doutos
 
 2. Por favor, insira as informações para sua conta de administrador.
 Configure do jeito que quiser.
@@ -80,13 +80,13 @@ URL: http://localhost:8000/
 Tutorial Instalação: [https://youtu.be/NgXzzBB_2bM?si=FS_R2xq_W0Jnfn33](https://www.youtube.com/watch?v=aZE-LW_YOE4)
 #### Windows 10/11
 1. Execute o Prompt de Comando ou PowerShell como Administrador;
-2. Execute o comando: `PowerShell -command "& { iwr https://raw.githubusercontent.com/RamonSilva20/mapos/master/install.bat -OutFile MapOS_Install.bat }; .\MapOS_Install.bat"`
+2. Execute o comando: `PowerShell -command "& { iwr https://raw.githubusercontent.com/RamonSilva20/doutos/master/install.bat -OutFile MapOS_Install.bat }; .\MapOS_Install.bat"`
 3. Siga as instrunções na tela.
 
 #### Linux (Ubuntu/Debian)
 1. Abra o Terminal ou acesse seu servidor via SSH;
 2. Eleve o privilégio aplicando `sudo su` (Recomendado);
-3. Execute o comando: `curl -o MapOS_Install.sh -L https://raw.githubusercontent.com/RamonSilva20/mapos/master/install.sh && chmod +x MapOS_Install.sh && ./MapOS_Install.sh`
+3. Execute o comando: `curl -o MapOS_Install.sh -L https://raw.githubusercontent.com/RamonSilva20/doutos/master/install.sh && chmod +x MapOS_Install.sh && ./MapOS_Install.sh`
 4. Siga as instruções na tela.
 
 ### Atualização
@@ -119,7 +119,7 @@ Tutorial Instalação: [https://youtu.be/NgXzzBB_2bM?si=FS_R2xq_W0Jnfn33](https:
 ### Atualização via sistema
 
 1. Primeiro é necessário atualizar manualmente o sistema para a versão v4.4.0;
-2. Quando estiver nessa versão é possível atualizar o sistema clicando no botão "Atualizar Mapos" em Sistema >> Configurações;
+2. Quando estiver nessa versão é possível atualizar o sistema clicando no botão "Atualizar Doutos" em Sistema >> Configurações;
 3. Serão baixados e atualizados todos os arquivos exceto: `config.php`, `database.php` e `email.php`;
 
 ### Comandos de terminal
@@ -128,9 +128,9 @@ Para listar todos os comandos de terminal disponíveis, basta executar o comando
 
 ### Hospedagem Parceira
 Em parceria com o Projeto Map-OS a SysGO oferece hospedagem de qualidade e suporte personalizado para usuários dos Map-OS com custo justo e confiabilidade.
-Solicite sua hospedagem agora [Clique Aqui!](https://sysgo.com.br/mapos)
+Solicite sua hospedagem agora [Clique Aqui!](https://sysgo.com.br/doutos)
 
-<p><img src="https://sysgo.com.br/img-externo/mapos-github.jpg" alt="SysGO - MAP-OS Cloud Hosting" style="width:50%;"></p>
+<p><img src="https://sysgo.com.br/img-externo/doutos-github.jpg" alt="SysGO - MAP-OS Cloud Hosting" style="width:50%;"></p>
 
 ### Frameworks/Bibliotecas
 * [bcit-ci/CodeIgniter](https://github.com/bcit-ci/CodeIgniter)
@@ -148,13 +148,14 @@ Solicite sua hospedagem agora [Clique Aqui!](https://sysgo.com.br/mapos)
 * Composer >= 2
 
 ### Estrelas
-[![Estrelas](https://api.star-history.com/svg?repos=RamonSilva20/mapos&type=Date)](https://star-history.com/#RamonSilva20/mapos&Date)
+[![Estrelas](https://api.star-history.com/svg?repos=RamonSilva20/doutos&type=Date)](https://star-history.com/#RamonSilva20/doutos&Date)
 
 ### Contribuidores
-[![Contribuidores](https://contrib.rocks/image?repo=RamonSilva20/mapos)](https://github.com/RamonSilva20/mapos/graphs/contributors)
+[![Contribuidores](https://contrib.rocks/image?repo=RamonSilva20/doutos)](https://github.com/RamonSilva20/doutos/graphs/contributors)
 
 ## Autor
 | [<img src="https://avatars.githubusercontent.com/RamonSilva20?s=115"><br><sub>Ramon Silva</sub>](https://github.com/RamonSilva20) |
 | :---: |
-#   d o u t o s  
+#   d o u t o s 
+ 
  

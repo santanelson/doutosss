@@ -115,7 +115,7 @@ class Github_updater
                 // Update the current commit hash
                 $this->_set_github_updater_config_hash($hash);
 
-                // Update the mapos version in the config filename
+                // Update the doutos version in the config filename
                 $this->_set_config_app_version($currentVersion);
 
                 return true;
@@ -215,7 +215,7 @@ class Github_updater
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLINFO_HEADER_OUT, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'User-Agent: Mapos',
+            'User-Agent: Doutos',
         ]);
 
         $response = curl_exec($ch);
@@ -254,9 +254,9 @@ class Github_updater
     }
 
     /**
-     * Get mapos current version.
+     * Get doutos current version.
      *
-     * @return string Mapos current version.
+     * @return string Doutos current version.
      */
     private function getCurrentVersion()
     {
@@ -267,7 +267,7 @@ class Github_updater
         $version = $latestRelease->tag_name;
 
         if (! $version) {
-            throw new Exception('Error getting mapos version from GitHub!');
+            throw new Exception('Error getting doutos version from GitHub!');
         }
 
         return str_replace('v', '', $version);

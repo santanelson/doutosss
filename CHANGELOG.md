@@ -133,7 +133,7 @@ e [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Correção lançamento de valor com centavos. [@cabralwms](https://github.com/cabralwms)
 - Correção migration vendas. [@cabralwms](https://github.com/cabralwms)
 - Ajustes de segurança de requisições da API. [@juliolobo](https://github.com/juliolobo)
-- Usando $_SERVER["HTTP_AUTHORIZATION"] para o App autenticar no mapos na rede local. [@juliolobo](https://github.com/juliolobo)
+- Usando $_SERVER["HTTP_AUTHORIZATION"] para o App autenticar no doutos na rede local. [@juliolobo](https://github.com/juliolobo)
 - Persistindo busca na paginação da listagem de vendas. [@juliolobo](https://github.com/juliolobo)
 - Passando possibilidade de reGenToken na validação do token. [@juliolobo](https://github.com/juliolobo)
 - Correção em REST controller. [@Wilmerson](https://github.com/willph)
@@ -397,7 +397,7 @@ e [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Fixed
 - Corrigido erro onde ao clicar na lupa para pesquisar o cnpj o mesmo não preenchia o numero de forma automatica, pois faltava no input id="numero". [@willph](https://github.com/willph)
 - Correção de javascript onde quebrava o codigo impedindo carregamento dos graficos do financeiro>lançamento e do calendario. [@willph](https://github.com/willph)
-- Corrigido case "Negociação" onde faltava a cor e o break no codigo em os.php e Mapos.php. [@willph](https://github.com/willph)
+- Corrigido case "Negociação" onde faltava a cor e o break no codigo em os.php e Doutos.php. [@willph](https://github.com/willph)
 - Colocado cor e o break no case de "Negociação" na view os.php. [@willph](https://github.com/willph)
 - Adicionado o arquivo update_4.29.0_to_4.30.2.sql que estava faltando. [@seitbnao](https://github.com/seitbnao)
 - Correção do botão pesquisar cnpj onde não trazia todos os dados de endereço. [@willph](https://github.com/willph)

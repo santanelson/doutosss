@@ -19,7 +19,7 @@ class ClientOsController extends REST_Controller
         $this->load->library('Authorization_Token');
         $this->load->library('pagination');
         $this->load->library('format');
-        $this->load->model('mapos_model');
+        $this->load->model('doutos_model');
         $this->load->model('os_model');
     }
 
@@ -76,7 +76,7 @@ class ClientOsController extends REST_Controller
         $produtos = $this->os_model->getProdutos($this->uri->segment(5));
         $servicos = $this->os_model->getServicos($this->uri->segment(5));
         $anexos = $this->os_model->getAnexos($this->uri->segment(5));
-        $emitente = $this->mapos_model->getEmitente();
+        $emitente = $this->doutos_model->getEmitente();
         $qrCode = $this->os_model->getQrCode(
             $id,
             $data['pix_key'],

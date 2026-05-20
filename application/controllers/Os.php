@@ -22,7 +22,7 @@ class Os extends MY_Controller
     public function gerenciar()
     {
         $this->load->library('pagination');
-        $this->load->model('mapos_model');
+        $this->load->model('doutos_model');
 
         $where_array = [];
 
@@ -70,7 +70,7 @@ class Os extends MY_Controller
         );
 
         $this->data['texto_de_notificacao'] = $this->data['configuration']['notifica_whats'];
-        $this->data['emitente'] = $this->mapos_model->getEmitente();
+        $this->data['emitente'] = $this->doutos_model->getEmitente();
         $this->data['view'] = 'os/os';
 
         return $this->layout();
@@ -128,12 +128,12 @@ class Os extends MY_Controller
             ];
 
             if (is_numeric($id = $this->os_model->add('os', $data, true))) {
-                $this->load->model('mapos_model');
+                $this->load->model('doutos_model');
                 $this->load->model('usuarios_model');
 
                 $idOs = $id;
                 $os = $this->os_model->getById($idOs);
-                $emitente = $this->mapos_model->getEmitente();
+                $emitente = $this->doutos_model->getEmitente();
 
                 $tecnico = $this->usuarios_model->getById($os->usuarios_id);
 
@@ -241,13 +241,13 @@ class Os extends MY_Controller
             }
 
             if ($this->os_model->edit('os', $data, 'idOs', $this->input->post('idOs')) == true) {
-                $this->load->model('mapos_model');
+                $this->load->model('doutos_model');
                 $this->load->model('usuarios_model');
 
                 $idOs = $this->input->post('idOs');
 
                 $os = $this->os_model->getById($idOs);
-                $emitente = $this->mapos_model->getEmitente();
+                $emitente = $this->doutos_model->getEmitente();
                 $tecnico = $this->usuarios_model->getById($os->usuarios_id);
 
                 // Verificar configuração de notificação
@@ -295,8 +295,8 @@ class Os extends MY_Controller
             $this->data['totalProdutos'] = $return['totalProdutos'];
         }
 
-        $this->load->model('mapos_model');
-        $this->data['emitente'] = $this->mapos_model->getEmitente();
+        $this->load->model('doutos_model');
+        $this->data['emitente'] = $this->doutos_model->getEmitente();
 
         $this->data['view'] = 'os/editarOs';
 
@@ -307,7 +307,7 @@ class Os extends MY_Controller
     {
         if (! $this->uri->segment(3) || ! is_numeric($this->uri->segment(3))) {
             $this->session->set_flashdata('error', 'Item não pode ser encontrado, parâmetro não foi passado corretamente.');
-            redirect('mapos');
+            redirect('doutos');
         }
 
         if (! $this->permission->checkPermission($this->session->userdata('permissao'), 'vOs')) {
@@ -318,11 +318,11 @@ class Os extends MY_Controller
         $this->data['custom_error'] = '';
         $this->data['texto_de_notificacao'] = $this->data['configuration']['notifica_whats'];
 
-        $this->load->model('mapos_model');
+        $this->load->model('doutos_model');
         $this->data['result'] = $this->os_model->getById($this->uri->segment(3));
         $this->data['produtos'] = $this->os_model->getProdutos($this->uri->segment(3));
         $this->data['servicos'] = $this->os_model->getServicos($this->uri->segment(3));
-        $this->data['emitente'] = $this->mapos_model->getEmitente();
+        $this->data['emitente'] = $this->doutos_model->getEmitente();
         $this->data['anexos'] = $this->os_model->getAnexos($this->uri->segment(3));
         $this->data['anotacoes'] = $this->os_model->getAnotacoes($this->uri->segment(3));
         $this->data['editavel'] = $this->os_model->isEditable($this->uri->segment(3));
@@ -417,7 +417,7 @@ class Os extends MY_Controller
     {
         if (! $this->uri->segment(3) || ! is_numeric($this->uri->segment(3))) {
             $this->session->set_flashdata('error', 'Item não pode ser encontrado, parâmetro não foi passado corretamente.');
-            redirect('mapos');
+            redirect('doutos');
         }
 
         if (! $this->permission->checkPermission($this->session->userdata('permissao'), 'vOs')) {
@@ -426,12 +426,12 @@ class Os extends MY_Controller
         }
 
         $this->data['custom_error'] = '';
-        $this->load->model('mapos_model');
+        $this->load->model('doutos_model');
         $this->data['result'] = $this->os_model->getById($this->uri->segment(3));
         $this->data['produtos'] = $this->os_model->getProdutos($this->uri->segment(3));
         $this->data['servicos'] = $this->os_model->getServicos($this->uri->segment(3));
         $this->data['anexos'] = $this->os_model->getAnexos($this->uri->segment(3));
-        $this->data['emitente'] = $this->mapos_model->getEmitente();
+        $this->data['emitente'] = $this->doutos_model->getEmitente();
         if ($this->data['configuration']['pix_key']) {
             $this->data['qrCode'] = $this->os_model->getQrCode(
                 $this->uri->segment(3),
@@ -450,7 +450,7 @@ class Os extends MY_Controller
     {
         if (! $this->uri->segment(3) || ! is_numeric($this->uri->segment(3))) {
             $this->session->set_flashdata('error', 'Item não pode ser encontrado, parâmetro não foi passado corretamente.');
-            redirect('mapos');
+            redirect('doutos');
         }
 
         if (! $this->permission->checkPermission($this->session->userdata('permissao'), 'vOs')) {
@@ -459,11 +459,11 @@ class Os extends MY_Controller
         }
 
         $this->data['custom_error'] = '';
-        $this->load->model('mapos_model');
+        $this->load->model('doutos_model');
         $this->data['result'] = $this->os_model->getById($this->uri->segment(3));
         $this->data['produtos'] = $this->os_model->getProdutos($this->uri->segment(3));
         $this->data['servicos'] = $this->os_model->getServicos($this->uri->segment(3));
-        $this->data['emitente'] = $this->mapos_model->getEmitente();
+        $this->data['emitente'] = $this->doutos_model->getEmitente();
         $this->data['qrCode'] = $this->os_model->getQrCode(
             $this->uri->segment(3),
             $this->data['configuration']['pix_key'],
@@ -478,7 +478,7 @@ class Os extends MY_Controller
     {
         if (! $this->uri->segment(3) || ! is_numeric($this->uri->segment(3))) {
             $this->session->set_flashdata('error', 'Item não pode ser encontrado, parâmetro não foi passado corretamente.');
-            redirect('mapos');
+            redirect('doutos');
         }
 
         if (! $this->permission->checkPermission($this->session->userdata('permissao'), 'vOs')) {
@@ -486,7 +486,7 @@ class Os extends MY_Controller
             redirect(base_url());
         }
 
-        $this->load->model('mapos_model');
+        $this->load->model('doutos_model');
         $this->load->model('usuarios_model');
         $this->data['result'] = $this->os_model->getById($this->uri->segment(3));
         if (! isset($this->data['result']->email)) {
@@ -496,7 +496,7 @@ class Os extends MY_Controller
 
         $this->data['produtos'] = $this->os_model->getProdutos($this->uri->segment(3));
         $this->data['servicos'] = $this->os_model->getServicos($this->uri->segment(3));
-        $this->data['emitente'] = $this->mapos_model->getEmitente();
+        $this->data['emitente'] = $this->doutos_model->getEmitente();
 
         if (! isset($this->data['emitente']->email)) {
             $this->session->set_flashdata('error', 'Efetue o cadastro dos dados de emitente');
@@ -1108,7 +1108,7 @@ class Os extends MY_Controller
     {
         $dados = [];
 
-        $this->load->model('mapos_model');
+        $this->load->model('doutos_model');
         $dados['result'] = $this->os_model->getById($idOs);
         if (! isset($dados['result']->email)) {
             return false;
@@ -1116,7 +1116,7 @@ class Os extends MY_Controller
 
         $dados['produtos'] = $this->os_model->getProdutos($idOs);
         $dados['servicos'] = $this->os_model->getServicos($idOs);
-        $dados['emitente'] = $this->mapos_model->getEmitente();
+        $dados['emitente'] = $this->doutos_model->getEmitente();
         $emitente = $dados['emitente'];
         if (! isset($emitente->email)) {
             return false;

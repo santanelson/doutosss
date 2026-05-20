@@ -117,7 +117,7 @@ class Garantias extends MY_Controller
     {
         if (! $this->uri->segment(3) || ! is_numeric($this->uri->segment(3))) {
             $this->session->set_flashdata('error', 'Item não pode ser encontrado, parâmetro não foi passado corretamente.');
-            redirect('mapos');
+            redirect('doutos');
         }
 
         if (! $this->permission->checkPermission($this->session->userdata('permissao'), 'vGarantia')) {
@@ -126,9 +126,9 @@ class Garantias extends MY_Controller
         }
 
         $this->data['custom_error'] = '';
-        $this->load->model('mapos_model');
+        $this->load->model('doutos_model');
         $this->data['result'] = $this->garantias_model->getById($this->uri->segment(3));
-        $this->data['emitente'] = $this->mapos_model->getEmitente();
+        $this->data['emitente'] = $this->doutos_model->getEmitente();
 
         $this->data['view'] = 'garantias/visualizarGarantia';
 
@@ -139,7 +139,7 @@ class Garantias extends MY_Controller
     {
         if (! $this->uri->segment(3) || ! is_numeric($this->uri->segment(3))) {
             $this->session->set_flashdata('error', 'Item não pode ser encontrado, parâmetro não foi passado corretamente.');
-            redirect('mapos');
+            redirect('doutos');
         }
 
         if (! $this->permission->checkPermission($this->session->userdata('permissao'), 'vGarantia')) {
@@ -148,9 +148,9 @@ class Garantias extends MY_Controller
         }
 
         $this->data['custom_error'] = '';
-        $this->load->model('mapos_model');
+        $this->load->model('doutos_model');
         $this->data['result'] = $this->garantias_model->getById($this->uri->segment(3));
-        $this->data['emitente'] = $this->mapos_model->getEmitente();
+        $this->data['emitente'] = $this->doutos_model->getEmitente();
 
         $this->load->view('garantias/imprimirGarantia', $this->data);
     }
@@ -159,7 +159,7 @@ class Garantias extends MY_Controller
     {
         if (! $this->uri->segment(3) || ! is_numeric($this->uri->segment(3))) {
             $this->session->set_flashdata('error', 'Item não pode ser encontrado, parâmetro não foi passado corretamente.');
-            redirect('mapos');
+            redirect('doutos');
         }
 
         if (! $this->permission->checkPermission($this->session->userdata('permissao'), 'vGarantia')) {
@@ -168,9 +168,9 @@ class Garantias extends MY_Controller
         }
 
         $this->data['custom_error'] = '';
-        $this->load->model('mapos_model');
+        $this->load->model('doutos_model');
         $this->data['osGarantia'] = $this->garantias_model->getByIdOsGarantia($this->uri->segment(3));
-        $this->data['emitente'] = $this->mapos_model->getEmitente();
+        $this->data['emitente'] = $this->doutos_model->getEmitente();
 
         $this->load->view('garantias/imprimirGarantiaOs', $this->data);
     }
