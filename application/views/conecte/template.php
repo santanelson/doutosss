@@ -52,7 +52,7 @@
                 <img src="<?php echo base_url() ?>assets/img/logo-two.png">
             </div>
             <div class="title1">
-                <img src="<?= base_url() ?>assets/img/logo-mapos-branco.png">
+                <img src="<?= base_url() ?>assets/img/logo-dout-branco.png">
             </div>
         </div>
         <a href="#" class="visible-phone">

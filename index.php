@@ -55,6 +55,10 @@
  * NOTE: If you change these, also change the error_reporting() code below
  */
 
+// Disable deprecation/notice output during bootstrap to prevent header-send errors
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED & ~E_NOTICE);
+ini_set('display_errors', 0);
+
 $composerAutoloadFile = __DIR__ . DIRECTORY_SEPARATOR . 'application' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
 if (file_exists($composerAutoloadFile)) {
     require_once $composerAutoloadFile;

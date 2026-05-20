@@ -35,7 +35,7 @@
   ?>
       </h1>
       <h2 class="h-two"> Ao Sistema de Controle de Ordens de Serviço</h2>
-      <img src="<?php echo base_url() ?>assets/img/dashboard-animate.svg" class="left-login-image" alt="Map-OS - Versão: <?= $this->config->item('app_version'); ?>">
+      <img src="<?php echo base_url() ?>assets/img/dashboard-animate.svg" class="left-login-image" alt="DOUTOS - Versão: <?= $this->config->item('app_version'); ?>">
     </div>
     <form class="form-vertical" id="formLogin" method="post" action="<?= site_url('login/verificarLogin') ?>">
       <input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>">
@@ -57,7 +57,7 @@
                     <img src="<?php echo base_url() ?>assets/img/logo-two.png">
                   </div>
                   <div class="title01">
-                    <?= '<img src="' . base_url() . 'assets/img/logo-mapos-branco.png">'; ?>
+                    <?= '<img src="' . base_url() . 'assets/img/logo-dout-branco.png">'; ?>
                   </div>
                 </div>
                 <div id="mcell">Versão: <?= $this->config->item('app_version'); ?></div>
@@ -72,14 +72,14 @@
                 <div class="center">
                   <button id="btn-acessar">Acessar</button>
                 </div>
-                <div class="links-uteis"><a href="https://github.com/RamonSilva20/mapos">
-                    <p><?= date('Y'); ?> &copy; Ramon Silva</p>
+                <div class="links-uteis"><a href="https://dout.com.br">
+                    <p><?= date('Y'); ?> &copy; DOUT</p>
                   </a>
                 </div>
                 <a href="#notification" id="call-modal" role="button" class="btn" data-toggle="modal" style="display: none ">notification</a>
                 <div id="notification" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                   <div class="modal-header">
-                    <h4 id="myModalLabel">Map-OS</h4>
+                    <h4 id="myModalLabel">DOUTOS</h4>
                   </div>
                   <div class="modal-body">
                     <h5 style="text-align: center" id="message">Os dados de acesso estão incorretos, por favor tente novamente!</h5>
@@ -96,7 +96,7 @@
       <a href="#notification" id="call-modal" role="button" class="btn" data-toggle="modal" style="display: none ">notification</a>
       <div id="notification" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-header">
-          <h4 id="myModalLabel">Map-OS</h4>
+          <h4 id="myModalLabel">DOUTOS</h4>
         </div>
         <div class="modal-body">
           <h5 style="text-align: center" id="message">Os dados de acesso estão incorretos, por favor tente novamente!</h5>
@@ -153,7 +153,7 @@
                     $('#call-modal').trigger('click');
 
                     // Atualiza o token a cada requisição
-                    var newCsrfToken = data.MAPOS_TOKEN; 
+                    var newCsrfToken = data.<?= $this->security->get_csrf_token_name(); ?>; 
                     $("input[name='<?= $this->security->get_csrf_token_name(); ?>']").val(newCsrfToken);
                     
                 }

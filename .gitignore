@@ -28,4 +28,6 @@ ci_sessions/
 
 uploads
 application/.env
+application/.env.bak
+*.bak
 assets/userImage

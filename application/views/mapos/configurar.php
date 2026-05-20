@@ -348,7 +348,7 @@
                                     <button href="#modal-confirmabanco" data-toggle="modal" type="button" class="button btn btn-warning">
                                       <span class="button__icon"><i class="bx bx-sync"></i></span><span class="button__text2">Banco de Dados</span></button>
                                     <button href="#modal-confirmaratualiza" data-toggle="modal" type="button" class="button btn btn-danger">
-                                      <span class="button__icon"><i class="bx bx-sync"></i></span><span class="button__text2">Atualizar Mapos</span></button>
+                                      <span class="button__icon"><i class="bx bx-sync"></i></span><span class="button__text2">Atualizar Sistema</span></button>
                                 </div>
                             </div>
                         </div>

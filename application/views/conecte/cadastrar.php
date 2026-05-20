@@ -402,8 +402,8 @@
     <!--Footer-part-->
     <div class="row-fluid">
         <div id="footer" class="span12" style="padding: 10px">
-            <a class="pecolor" href="https://github.com/RamonSilva20/mapos" target="_blank">
-                <?= date('Y') ?> &copy; Ramon Silva - <?= $this->config->item('app_name') ?> - Versão: <?= $this->config->item('app_version'); ?>
+            <a class="pecolor" href="https://dout.com.br" target="_blank">
+                <?= date('Y') ?> &copy; DOUT - <?= $this->config->item('app_name') ?> - Versão: <?= $this->config->item('app_version'); ?>
             </a>
         </div>
     </div>

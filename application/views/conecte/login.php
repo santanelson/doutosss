@@ -43,7 +43,7 @@ $parse_email = $this->input->get('e');
     <div class="main-login">
         <div class="left-login">
             <h1 class="h-one">Área do Cliente</h1>
-            <img src="<?php echo base_url() ?>assets/img/forms-animate.svg" class="left-login-imagec" alt="Map-OS 5.0">
+            <img src="<?php echo base_url() ?>assets/img/forms-animate.svg" class="left-login-imagec" alt="DOUTOS">
         </div>
 
         <div id="loginbox">
@@ -59,7 +59,7 @@ $parse_email = $this->input->get('e');
                                             <img src="<?php echo base_url() ?>assets/img/logo-two.png">
                                         </div>
                                         <div class="title01">
-                                            <img src="<?php echo base_url() ?>assets/img/logo-mapos-branco.png">
+                                            <img src="<?php echo base_url() ?>assets/img/logo-dout-branco.png">
                                         </div>
                                     </div>
                                     <div id="mcell">Versão: <?= $this->config->item('app_version'); ?></div>
@@ -86,8 +86,8 @@ $parse_email = $this->input->get('e');
                                     <div class="links-uteis"><a href="<?= site_url('mine/resetarSenha') ?>">
                                             <p style="margin:0px 0 18px">Esqueceu a senha?</p>
                                         </a></div>
-                                    <div class="links-uteis"><a href="https://github.com/RamonSilva20/mapos">
-                                            <p><?= date('Y'); ?> &copy; Ramon Silva</p>
+                                    <div class="links-uteis"><a href="https://dout.com.br">
+                                            <p><?= date('Y'); ?> &copy; DOUT</p>
                                         </a></div>
                                 </div>
                             </div>
@@ -167,7 +167,7 @@ $parse_email = $this->input->get('e');
                                     timer: 4000
                                 })
 
-                                var newCsrfToken = data.MAPOS_TOKEN;
+                                var newCsrfToken = data.<?= $this->security->get_csrf_token_name(); ?>;
                                 $("input[name='<?= $this->security->get_csrf_token_name(); ?>']").val(newCsrfToken);
                             }
                         }

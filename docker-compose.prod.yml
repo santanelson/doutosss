@@ -1,0 +1,82 @@
+version: '3.9'
+
+services:
+  # ============================================================================
+  # SERVIÇO DE BANCO DE DADOS (COMPARTILHADO OU INDIVIDUAL)
+  # ============================================================================
+  mysql-prod:
+    image: mysql:8.4
+    container_name: mysql-prod
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=senha_ultra_secreta_root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_prod_data:/var/lib/mysql
+
+  # ============================================================================
+  # INSTÂNCIA 1: CLIENTE ALFA (Ex: alfa.doutos.com.br)
+  # ============================================================================
+  app-alfa:
+    image: doutos-app:latest
+    container_name: app-alfa
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8001:80"
+    environment:
+      # Configurações do CodeIgniter
+      - APP_NAME=DOUTOS - Cliente Alfa
+      - APP_SUBNAME=Painel de Ordens de Serviço
+      - APP_BASEURL=http://alfa.doutos.com.br/
+      - APP_ENVIRONMENT=production
+      
+      # Conexão com o Banco de Dados
+      - DB_HOSTNAME=mysql-prod
+      - DB_DATABASE=db_cliente_alfa
+      - DB_USERNAME=user_alfa
+      - DB_PASSWORD=senha_forte_alfa
+      
+      # Chaves de Criptografia (Mudar em produção!)
+      - APP_ENCRYPTION_KEY=c30ca17ab6fbc82b3d88b48de9a987ef
+      - API_JWT_KEY=gK34HjKls098AdFhJkLzXcVbNmQwErTyUiOpAsDfGhJ=
+      - API_ENABLED=true
+    depends_on:
+      - mysql-prod
+
+  # ============================================================================
+  # INSTÂNCIA 2: CLIENTE BETA (Ex: beta.doutos.com.br)
+  # ============================================================================
+  app-beta:
+    image: doutos-app:latest
+    container_name: app-beta
+    restart: always
+    ports:
+      - "8002:80"
+    environment:
+      # Configurações do CodeIgniter
+      - APP_NAME=DOUTOS - Cliente Beta
+      - APP_SUBNAME=Gestão de Ordens de Serviço
+      - APP_BASEURL=http://beta.doutos.com.br/
+      - APP_ENVIRONMENT=production
+      
+      # Conexão com o Banco de Dados
+      - DB_HOSTNAME=mysql-prod
+      - DB_DATABASE=db_cliente_beta
+      - DB_USERNAME=user_beta
+      - DB_PASSWORD=senha_forte_beta
+      
+      # Chaves de Criptografia (Mudar em produção!)
+      - APP_ENCRYPTION_KEY=d90ea28bc7fcd93c4e99c58ef0b098fg
+      - API_JWT_KEY=zXcVbNmQwErTyUiOpAsDfGhJkLzXcVbNmQwErTyUiOp=
+      - API_ENABLED=true
+    depends_on:
+      - mysql-prod
+
+volumes:
+  mysql_prod_data:
+    driver: local
+EOF

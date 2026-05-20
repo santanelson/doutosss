@@ -178,7 +178,7 @@
     <form action="<?= site_url('mapos/uploadUserImage'); ?>" id="formImageUser" enctype="multipart/form-data" method="post" class="form-horizontal">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="">MapOS - Atualizar Imagem do Usuario</h3>
+            <h3 id="">DOUTOS - Atualizar Imagem do Usuário</h3>
         </div>
         <div class="modal-body">
             <div class="span12 alert alert-info">Selecione uma nova imagem do usuario. Tamanho indicado (130 X 130).</div>

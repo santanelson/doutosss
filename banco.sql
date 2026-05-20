@@ -636,7 +636,7 @@ CREATE TABLE IF NOT EXISTS `migrations` (
 );
 
 INSERT IGNORE INTO `configuracoes` (`idConfig`, `config`, `valor`) VALUES
-(2, 'app_name', 'Map-OS'),
+(2, 'app_name', 'DOUTOS'),
 (3, 'app_theme', 'white'),
 (4, 'per_page', '10'),
 (5, 'os_notification', 'cliente'),

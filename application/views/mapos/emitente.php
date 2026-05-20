@@ -286,7 +286,7 @@
         <form action="<?= site_url('mapos/editarLogo'); ?>" id="formLogo" enctype="multipart/form-data" method="post" class="form-horizontal">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h3 id="">MapOS - Atualizar Logotipo</h3>
+                <h3 id="">DOUTOS - Atualizar Logotipo</h3>
             </div>
             <div class="modal-body">
                 <div class="span12 alert alert-info">Selecione uma nova imagem da logotipo. Tamanho indicado (130 X 130).</div>

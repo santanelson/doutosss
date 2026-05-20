@@ -521,7 +521,7 @@ class Mapos extends MY_Controller
         $this->load->library('github_updater');
 
         if (!$this->github_updater->has_update()) {
-            $this->session->set_flashdata('success', 'Seu mapos já está atualizado!');
+            $this->session->set_flashdata('success', 'Seu sistema já está atualizado!');
 
             return redirect(site_url('mapos/configurar'));
         }
@@ -529,9 +529,9 @@ class Mapos extends MY_Controller
         $success = $this->github_updater->update();
 
         if ($success) {
-            $this->session->set_flashdata('success', 'Mapos atualizado com sucesso!');
+            $this->session->set_flashdata('success', 'Sistema atualizado com sucesso!');
         } else {
-            $this->session->set_flashdata('error', 'Erro ao atualizar mapos!');
+            $this->session->set_flashdata('error', 'Erro ao atualizar o sistema!');
         }
 
         return redirect(site_url('mapos/configurar'));

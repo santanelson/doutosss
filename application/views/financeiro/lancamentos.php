@@ -492,7 +492,7 @@ echo number_format($soma_descontos_pagos, 2, ',', '.')?></strong></td>
     <form id="formDespesa" action="<?php // echo base_url()?>index.php/financeiro/adicionarDespesa" method="post">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="myModalLabel">MapOS - Adicionar Despesa</h3>
+            <h3 id="myModalLabel">DOUTOS - Adicionar Despesa</h3>
         </div>
         <div class="modal-body">
             <div class="span12 alert alert-info" style="margin-left: 0"> Obrigatório o preenchimento dos campos com
