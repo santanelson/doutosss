@@ -285,14 +285,14 @@ cd ..
 
 # 9. Aguardar inicialização do MySQL e importar banco.sql
 echo -e "\n${YELLOW}Aguardando o banco MySQL (${INSTANCE_NAME}_mysql) iniciar...${NC}"
-until docker exec ${INSTANCE_NAME}_mysql mysqladmin ping -h"localhost" -u"$DB_USER" -p"$DB_PASS" --silent; do
+until docker exec ${INSTANCE_NAME}_mysql mysqladmin ping -uroot -p"$ROOT_PASS" -h"127.0.0.1" --silent 2>/dev/null; do
     echo -n "."
     sleep 2
 done
 echo -e "\n${GREEN}MySQL pronto!${NC}"
 
 echo -e "${YELLOW}Importando a estrutura e dados iniciais do banco (banco.sql)...${NC}"
-docker exec -i ${INSTANCE_NAME}_mysql mysql -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" < banco.sql
+docker exec -i ${INSTANCE_NAME}_mysql mysql -uroot -p"$ROOT_PASS" -h"127.0.0.1" "$DB_NAME" < banco.sql
 echo -e "${GREEN}Banco de dados importado com sucesso!${NC}"
 
 # 10. Atualizar as credenciais do Administrador no banco
@@ -302,27 +302,43 @@ echo -e "${YELLOW}Configurando o usuário Administrador no banco de dados...${NC
 ADMIN_HASH=$(docker exec ${INSTANCE_NAME}_php-fpm php -r "echo password_hash('$ADMIN_PASS', PASSWORD_DEFAULT);")
 
 # Executar a query SQL de atualização
-docker exec -i ${INSTANCE_NAME}_mysql mysql -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "UPDATE usuarios SET email='$ADMIN_EMAIL', nome='$ADMIN_NAME', senha='$ADMIN_HASH', dataCadastro=NOW() WHERE idUsuarios=1;"
+docker exec -i ${INSTANCE_NAME}_mysql mysql -uroot -p"$ROOT_PASS" -h"127.0.0.1" "$DB_NAME" -e "UPDATE usuarios SET email='$ADMIN_EMAIL', nome='$ADMIN_NAME', senha='$ADMIN_HASH', dataCadastro=NOW() WHERE idUsuarios=1;"
 echo -e "${GREEN}Administrador configurado!${NC}"
 
 # 11. Configurar SSL automaticamente se selecionado
 if [ "$SETUP_SSL" == "s" ] || [ "$SETUP_SSL" == "S" ]; then
     echo -e "\n${YELLOW}Iniciando configuração de SSL (HTTPS) com Let's Encrypt...${NC}"
-    apt update && apt install -y certbot
+    apt install -y certbot -qq
     
-    # Parar os containers temporariamente para liberar a porta 80/443 para o Certbot
+    # Parar os containers para liberar a porta 80 para o Certbot standalone
     cd docker
     docker compose down
     cd ..
     
-    # Gerar certificado standalone
+    # Gerar certificado
     certbot certonly --standalone -d "$DOMAIN" --non-interactive --agree-tos --email "$ADMIN_EMAIL"
     
-    echo -e "${GREEN}Certificado SSL gerado com sucesso!${NC}"
-    echo -e "${YELLOW}Re-iniciando os containers da instância...${NC}"
-    cd docker
-    docker compose up -d
-    cd ..
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}Certificado SSL gerado com sucesso!${NC}"
+        
+        # Ativar template SSL no docker-compose (troca default.template por ssl.template)
+        # O nginx já tem /etc/letsencrypt montado via docker-compose.yml
+        # Atualizamos o command do nginx para usar o ssl.template.conf
+        sed -i 's|envsubst.*default.template.*default.conf|envsubst '\''$$NGINX_HOST$$NGINX_PORT'\'' < /etc/nginx/conf.d/ssl.template > /etc/nginx/conf.d/default.conf|g' docker/docker-compose.yml
+        
+        echo -e "${YELLOW}Re-iniciando os containers com SSL ativo...${NC}"
+        cd docker
+        docker compose up -d
+        cd ..
+        
+        BASE_URL="https://$DOMAIN"
+    else
+        echo -e "${RED}Falha ao gerar certificado SSL. Verifique se o domínio aponta para este IP e a porta 80 está acessível.${NC}"
+        echo -e "${YELLOW}Re-iniciando containers sem SSL...${NC}"
+        cd docker
+        docker compose up -d
+        cd ..
+    fi
 fi
 
 # Fim da instalação
