@@ -29,6 +29,47 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
+# 1.5. Instalação de TODAS as dependências do sistema (VPS crua)
+echo -e "\n${BLUE}[0/5] PREPARANDO SISTEMA - Instalando dependências...${NC}"
+apt update -qq
+
+# Pacotes base necessários para o script funcionar
+DEPS_BASE=("curl" "git" "rsync" "openssl" "net-tools" "ca-certificates" "gnupg" "lsb-release" "apt-transport-https" "software-properties-common")
+for dep in "${DEPS_BASE[@]}"; do
+    if ! command -v "$dep" &>/dev/null && ! dpkg -l "$dep" &>/dev/null; then
+        echo -e "${YELLOW}Instalando: $dep${NC}"
+        apt install -y "$dep" -qq
+    fi
+done
+echo -e "${GREEN}Pacotes base prontos!${NC}"
+
+# Instalar Docker se não estiver presente
+if ! command -v docker &>/dev/null; then
+    echo -e "${YELLOW}Docker não encontrado. Instalando Docker Engine...${NC}"
+    install -m 0755 -d /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/$(lsb_release -is | tr '[:upper:]' '[:lower:]')/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    chmod a+r /etc/apt/keyrings/docker.gpg
+    echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/$(lsb_release -is | tr '[:upper:]' '[:lower:]') \
+      $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+    apt update -qq
+    apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -qq
+    systemctl enable docker --now
+    echo -e "${GREEN}Docker instalado com sucesso!${NC}"
+else
+    echo -e "${GREEN}Docker já está instalado: $(docker --version)${NC}"
+fi
+
+# Verificar Docker Compose
+if ! docker compose version &>/dev/null; then
+    echo -e "${YELLOW}Instalando plugin docker-compose...${NC}"
+    apt install -y docker-compose-plugin -qq
+fi
+echo -e "${GREEN}Docker Compose: $(docker compose version)${NC}"
+
+echo -e "${GREEN}Sistema preparado com sucesso!${NC}"
+echo -e "----------------------------------------------------------------------"
+
 # 2. Definição do Nome da Instância
 echo -e "${BLUE}[1/5] DEFINIÇÃO DA INSTÂNCIA${NC}"
 read -p "Digite o identificador único da instância (ex: cliente1, filial2): " INSTANCE_INPUT
@@ -181,28 +222,6 @@ CONFIRM=${CONFIRM:-s}
 if [ "$CONFIRM" != "s" ] && [ "$CONFIRM" != "S" ]; then
     echo -e "${YELLOW}Instalação cancelada pelo usuário.${NC}"
     exit 0
-fi
-
-# 6. Instalação de dependências do sistema
-echo -e "\n${BLUE}[5/5] VERIFICANDO DEPENDÊNCIAS DO SISTEMA...${NC}"
-
-if ! [ -x "$(command -v docker)" ]; then
-    echo -e "${YELLOW}Docker não encontrado. Instalando Docker...${NC}"
-    apt update && apt install -y curl
-    curl -fsSL https://get.docker.com | sh
-    systemctl start docker
-    systemctl enable docker
-    echo -e "${GREEN}Docker instalado com sucesso!${NC}"
-else
-    echo -e "${GREEN}Docker já está instalado.${NC}"
-fi
-
-if ! docker compose version &>/dev/null; then
-    echo -e "${YELLOW}Docker Compose não encontrado. Instalando plugin...${NC}"
-    apt update && apt install -y docker-compose-plugin
-    echo -e "${GREEN}Docker Compose instalado com sucesso!${NC}"
-else
-    echo -e "${GREEN}Docker Compose já está instalado.${NC}"
 fi
 
 # 7. Escrever arquivos .env do Docker e da Aplicação
