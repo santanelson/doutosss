@@ -67,6 +67,9 @@ if ! docker compose version &>/dev/null; then
 fi
 echo -e "${GREEN}Docker Compose: $(docker compose version)${NC}"
 
+# Garantir que a rede pública do Traefik exista no Docker
+docker network create traefik-public 2>/dev/null || true
+
 echo -e "${GREEN}Sistema preparado com sucesso!${NC}"
 echo -e "----------------------------------------------------------------------"
 
@@ -196,23 +199,28 @@ done
 
 # 6. Escolha do método de Exposição e SSL
 echo -e "\n${BLUE}Como deseja configurar a exposição web e SSL (HTTPS) desta instância?${NC}"
-echo -e "1) Usar Proxy Reverso Nginx na VPS com SSL Let's Encrypt (Recomendado para multi-instâncias)"
-echo -e "2) Usar Proxy Reverso Nginx na VPS SEM SSL (HTTP normal)"
-echo -e "3) Exposição direta pelo Docker com SSL Let's Encrypt (Standalone - requer liberar portas 80/443 no Docker)"
-echo -e "4) Exposição direta pelo Docker SEM SSL (HTTP normal)"
+echo -e "1) Usar Proxy Reverso Traefik no Docker com SSL Let's Encrypt (Altamente recomendado e 100% dinâmico)"
+echo -e "2) Usar Proxy Reverso Nginx na VPS com SSL Let's Encrypt"
+echo -e "3) Usar Proxy Reverso Nginx na VPS SEM SSL (HTTP normal)"
+echo -e "4) Exposição direta pelo Docker com SSL Let's Encrypt (Standalone - requer liberar portas 80/443 no Docker)"
+echo -e "5) Exposição direta pelo Docker SEM SSL (HTTP normal)"
 read -p "Selecione a opção desejada [Padrão: 1]: " EXPOSE_OPTION
 EXPOSE_OPTION=${EXPOSE_OPTION:-1}
 
+USE_TRAEFIK="n"
 USE_HOST_PROXY="n"
 SETUP_SSL="n"
 
 if [ "$EXPOSE_OPTION" == "1" ]; then
-    USE_HOST_PROXY="s"
+    USE_TRAEFIK="s"
     SETUP_SSL="s"
 elif [ "$EXPOSE_OPTION" == "2" ]; then
     USE_HOST_PROXY="s"
-    SETUP_SSL="n"
+    SETUP_SSL="s"
 elif [ "$EXPOSE_OPTION" == "3" ]; then
+    USE_HOST_PROXY="s"
+    SETUP_SSL="n"
+elif [ "$EXPOSE_OPTION" == "4" ]; then
     USE_HOST_PROXY="n"
     SETUP_SSL="s"
 else
@@ -221,11 +229,18 @@ else
 fi
 
 # Configurar as variáveis de portas de acordo com a opção de exposição
-if [ "$USE_HOST_PROXY" == "s" ]; then
+if [ "$USE_TRAEFIK" == "s" ]; then
+    NGINX_PORT_BIND="127.0.0.1:$WEB_PORT:80"
+    NGINX_SSL_PORT_BIND="127.0.0.1:9443:443"
+    NGINX_TEMPLATE="default"
+    TRAEFIK_ENABLE="true"
+elif [ "$USE_HOST_PROXY" == "s" ]; then
     NGINX_PORT_BIND="127.0.0.1:$WEB_PORT:$WEB_PORT"
     NGINX_SSL_PORT_BIND="127.0.0.1:9443:443"
     NGINX_TEMPLATE="default"
+    TRAEFIK_ENABLE="false"
 else
+    TRAEFIK_ENABLE="false"
     if [ "$SETUP_SSL" == "s" ]; then
         NGINX_PORT_BIND="$WEB_PORT:80"
         NGINX_SSL_PORT_BIND="443:443"
@@ -242,7 +257,7 @@ echo -e "\n${BLUE}==============================================================
 echo -e "${YELLOW}RESUMO DA CONFIGURAÇÃO DA INSTÂNCIA [ $INSTANCE_NAME ]:${NC}"
 echo -e "Diretório: $TARGET_DIR"
 echo -e "Domínio: $DOMAIN"
-echo -e "Porta Nginx: $WEB_PORT (Tipo: $([ "$USE_HOST_PROXY" == "s" ] && echo "Local escutando em 127.0.0.1 (Proxy Reverso)" || echo "Exposta Pública no Host"))"
+echo -e "Porta Nginx: $WEB_PORT (Tipo: $([ "$USE_TRAEFIK" == "s" ] && echo "Local escutando em 127.0.0.1 (Roteado via Traefik)" || ([ "$USE_HOST_PROXY" == "s" ] && echo "Local escutando em 127.0.0.1 (Proxy Reverso Nginx)" || echo "Exposta Pública no Host")))"
 echo -e "phpMyAdmin: $([ "$ENABLE_PMA" == "s" ] && echo "Habilitado na porta $PMA_PORT" || echo "Desabilitado")"
 echo -e "MySQL (Porta Host): $MYSQL_PORT"
 echo -e "Banco de Dados: $DB_NAME"
@@ -250,7 +265,8 @@ echo -e "Usuário MySQL: $DB_USER"
 echo -e "Senha MySQL: $DB_PASS"
 echo -e "E-mail Admin: $ADMIN_EMAIL"
 echo -e "Senha Admin: $ADMIN_PASS"
-echo -e "Proxy Reverso na VPS: $([ "$USE_HOST_PROXY" == "s" ] && echo "Sim" || echo "Não")"
+echo -e "Proxy Reverso Traefik (Docker): $([ "$USE_TRAEFIK" == "s" ] && echo "Sim" || echo "Não")"
+echo -e "Proxy Reverso Nginx (VPS): $([ "$USE_HOST_PROXY" == "s" ] && echo "Sim" || echo "Não")"
 echo -e "Configurar SSL: $([ "$SETUP_SSL" == "s" ] && echo "Sim" || echo "Não")"
 echo -e "======================================================================"
 read -p "Confirmar e iniciar a instalação da instância? (s/n) [Padrão: s]: " CONFIRM
@@ -272,6 +288,7 @@ NGINX_PORT=$WEB_PORT
 NGINX_TEMPLATE=$NGINX_TEMPLATE
 NGINX_PORT_BIND=$NGINX_PORT_BIND
 NGINX_SSL_PORT_BIND=$NGINX_SSL_PORT_BIND
+TRAEFIK_ENABLE=$TRAEFIK_ENABLE
 PHP_MY_ADMIN_PORT=$PMA_PORT
 
 MYSQL_DOUTOS_VERSION=8.4
@@ -350,7 +367,74 @@ docker exec -i ${INSTANCE_NAME}_mysql mysql -uroot -p"$ROOT_PASS" -h"127.0.0.1" 
 echo -e "${GREEN}Administrador configurado!${NC}"
 
 # 11. Configuração do Proxy Reverso na VPS e/ou SSL
-if [ "$USE_HOST_PROXY" == "s" ]; then
+if [ "$USE_TRAEFIK" == "s" ]; then
+    echo -e "\n${YELLOW}Configurando Proxy Reverso Traefik no Docker...${NC}"
+    
+    # 1. Verificar se o Traefik já está rodando
+    if ! docker ps --format '{{.Names}}' | grep -Eq "^traefik$"; then
+        echo -e "${YELLOW}Traefik não está rodando na VPS. Configurando Traefik global...${NC}"
+        
+        TRAEFIK_DIR="/var/www/traefik"
+        mkdir -p "$TRAEFIK_DIR/letsencrypt"
+        touch "$TRAEFIK_DIR/letsencrypt/acme.json"
+        chmod 600 "$TRAEFIK_DIR/letsencrypt/acme.json"
+        
+        # Gerar o docker-compose.yml do Traefik
+        cat <<EOF > "$TRAEFIK_DIR/docker-compose.yml"
+services:
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    restart: always
+    command:
+      - "--api.insecure=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=$ADMIN_EMAIL"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./letsencrypt:/letsencrypt"
+    networks:
+      - traefik-public
+
+networks:
+  traefik-public:
+    external: true
+EOF
+
+        # Se ufw estiver ativo, liberar portas 80 e 443
+        if command -v ufw &>/dev/null && ufw status | grep -q 'active'; then
+            ufw allow 80/tcp
+            ufw allow 443/tcp
+        fi
+
+        # Se houver Nginx na porta 80 do Host, avisa e para ele
+        if systemctl is-active --quiet nginx 2>/dev/null; then
+            echo -e "${YELLOW}Aviso: Nginx local está rodando na VPS. Parando e desativando ele para liberar as portas 80/443 para o Traefik...${NC}"
+            systemctl stop nginx
+            systemctl disable nginx
+        fi
+
+        # Subir o Traefik
+        cd "$TRAEFIK_DIR"
+        docker compose up -d
+        cd - &>/dev/null
+        echo -e "${GREEN}Traefik global iniciado com sucesso!${NC}"
+    else
+        echo -e "${GREEN}Traefik global já está rodando na VPS.${NC}"
+    fi
+
+elif [ "$USE_HOST_PROXY" == "s" ]; then
     echo -e "\n${YELLOW}Configurando Proxy Reverso Nginx na VPS...${NC}"
     
     # 1. Instalar Nginx na VPS se não estiver instalado

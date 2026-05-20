@@ -18,6 +18,16 @@ services:
     depends_on:
       - php-fpm
       - mysql
+    networks:
+      - default
+      - traefik-public
+    labels:
+      - "traefik.enable=${TRAEFIK_ENABLE}"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${NGINX_HOST}`)"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.tls=true"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=80"
 
   php-fpm:
     container_name: ${COMPOSE_PROJECT_NAME}_php-fpm
@@ -68,3 +78,8 @@ services:
       - "${MYSQL_DOUTOS_PORT}:3306"
     volumes:
       - "./data/db/mysql:/var/lib/mysql"
+
+networks:
+  default:
+  traefik-public:
+    external: true
