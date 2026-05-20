@@ -31,3 +31,4 @@ application/.env
 application/.env.bak
 *.bak
 assets/userImage
+tutorial.html
