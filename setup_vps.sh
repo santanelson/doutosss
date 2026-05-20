@@ -290,9 +290,9 @@ MYSQL_DOUTOS_USER=$DB_USER
 MYSQL_DOUTOS_PASSWORD=$DB_PASS
 EOF
 
-# Desativar PMA externamente se não solicitado
+# Desativar PMA externamente se não solicitado (escutando apenas em localhost com a porta da instância)
 if [ "$ENABLE_PMA" != "s" ] && [ "$ENABLE_PMA" != "S" ]; then
-    sed -i 's/PHP_MY_ADMIN_PORT=.*/PHP_MY_ADMIN_PORT=127.0.0.1:8081/' docker/.env
+    sed -i "s/PHP_MY_ADMIN_PORT=.*/PHP_MY_ADMIN_PORT=127.0.0.1:$PMA_PORT/" docker/.env
 fi
 
 # Criar application/.env baseado no .env.example
